@@ -39,7 +39,7 @@ if (isset($_POST['register'])) {
         try {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$username, $email, $passwordHash]);
 
             header('Location: /login-page.php');
