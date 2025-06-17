@@ -3,6 +3,7 @@
     <div class="nav-buttons">
         <a href="post-creation.php">Start writing</a>
         <a href="login-page.php">Log in</a>
+        <a href="logout.php">Log out</a>
         <a href="signup-page.php">Sign up</a>
     </div>
 </nav>

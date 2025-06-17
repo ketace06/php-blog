@@ -41,7 +41,7 @@ if (isset($_POST['signup'])) {
 
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$username, $email, $passwordHash]);
-            header('Location: /LogIn-page.php');
+            header('Location: /login-page.php');
             exit();
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();

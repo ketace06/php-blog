@@ -16,7 +16,7 @@ $isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
             </div>
         <?php else : ?>
             <div class="login-message">
-                <p>You are not logged in. Please <a href="/SignIn-page.php">login</a> to access all features.</p>
+                <p>You are not logged in. Please <a href="/login-page.php">login</a> to access all features.</p>
             </div>
         <?php endif; ?>
 
