@@ -11,7 +11,7 @@
             <button type="submit">Log in</button>
         </form>
     </div>
-    <p>Need an account? <a href="/register-page.php">SIGN UP</a>.</p>
+    <p>Don't have an account yet? <a href="/register-page.php">Sign up here</a>.</p>
 </body>
 
 </html>
