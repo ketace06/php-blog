@@ -21,8 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 session_regenerate_id(true);
                 header('Location: /index.php');
                 exit;
-            } else {
-                $errorMessage = "Invalid credentials. Please try again.";
+            }
+            elseif ($user) {
+                $errorMessage = "Incorrect password. Please try again.";
+            }
+            else {
+                $errorMessage = "No account exists with this email address. Please check the email entered or create a new account if you don't have one yet.";
             }
         }
     } catch (PDOException $e) {
@@ -44,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             <p style="color:red;"><?= htmlspecialchars($errorMessage) ?></p>
         <?php endif; ?>
 
-        <form action="/SignIn-page.php" method="POST">
+        <form action="/login-page.php" method="POST">
             <input type="email" name="email" placeholder="Email" autocomplete="email" required>
             <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" name="login">Sign in</button>
+            <button type="submit" name="login">Log in</button>
         </form>
     </div>
-    <p>Don't have an account yet? <a href="/SignUp-page.php">Sign up here</a>.</p>
+    <p>Don't have an account yet? <a href="/signup-page.php">Sign up here</a>.</p>
 </body>
 
 </html>
