@@ -80,7 +80,7 @@ if (isset($_POST['signup'])) {
         </form>
 
     </div>
-    <p>Already have an account? <a href="/login-page.php">Log in here</a>.</p>
+    <p>Already have an account? <a href="/login-page.php">Log in</a>.</p>
     <p>If you want to continue without an account <a href="/index.php">Click here</a>.</p>
 </body>
 

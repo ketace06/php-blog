@@ -51,10 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         <form action="/login-page.php" method="POST">
             <input type="email" name="email" placeholder="Email" autocomplete="email" required>
             <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" name="login">Log in</button>
+            <button type="submit" name="login">Log In</button>
         </form>
     </div>
-    <p>Don't have an account yet? <a href="/signup-page.php">Sign up here</a>.</p>
+    <p>Don't have an account yet? <a href="/signup-page.php">Sign up</a>.</p>
 </body>
 
 </html>
