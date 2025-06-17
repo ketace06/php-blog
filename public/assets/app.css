@@ -57,6 +57,11 @@ h1 {
     color: var(--primary-color);
 }
 
+p {
+    color: var(--text-color);
+}
+
+
 .form-container {
     background-color: white;
     border-radius: 8px;
