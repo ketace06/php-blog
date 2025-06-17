@@ -1,3 +1,8 @@
+<?php
+session_start();
+$isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <?php include('includes/head.php'); ?>
@@ -5,6 +10,16 @@
 <body>
     <?php include('includes/navbar.php'); ?>
     <main>
+        <?php if ($isLoggedIn) : ?>
+            <div class="welcome-message">
+                <p>Welcome back, <?= htmlspecialchars($_SESSION['username']); ?>!</p>
+            </div>
+        <?php else : ?>
+            <div class="login-message">
+                <p>You are not logged in. Please <a href="/SignIn-page.php">login</a> to access all features.</p>
+            </div>
+        <?php endif; ?>
+
         <section>
             <div class="blog-title-container">
                 <h2>Latest gaming blogs</h2>
@@ -31,6 +46,7 @@
                 </article>
             </div>
         </section>
+
         <section>
             <div class="blog-title-container">
                 <h2>Trending blogs</h2>
