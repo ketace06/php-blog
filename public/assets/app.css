@@ -8,6 +8,7 @@ html {
     --link-color: #cc8a00;
     --background-color: #f4f6fa;
     --text-color: #23272f;
+    --user-msg-color: #D22B2B;
 }
 
 body {
@@ -275,4 +276,8 @@ img {
     background-color: var(--secondary-color);
     padding: 20px;
     border-radius: 20px;
+}
+
+.user-message {
+    color: var(--user-msg-color)
 }
