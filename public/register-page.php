@@ -12,7 +12,7 @@
             <button type="submit">Sign up</button>
         </form>
     </div>
-    <p>Already have an account? <a href="/login-page.php">LOG IN</a>.</p>
+    <p>Already have an account? <a href="/login-page.php">Log in here</a>.</p>
 </body>
 
 </html>

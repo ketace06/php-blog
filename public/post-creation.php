@@ -30,7 +30,7 @@
                 </div>
             </form>
         </div>
-        <h1 class="h1mt">Recently published blogs</h1>
+        <h1>Recently published blogs</h1>
         <div class="recently-published-card">
             <div class="recent-blog">
                 <p>Everything you need to know about the Nintendo Switch 2</p>

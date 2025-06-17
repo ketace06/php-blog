@@ -3,12 +3,11 @@ html {
 }
 
 :root {
-    --primary-color: #234567;
-    --secondary-color: #e3eafc;
-    --accent-color: #ffb347;
+    --primary-color: #143d59;
+    --secondary-color: #ffb300;
+    --link-color: #cc8a00;
     --background-color: #f4f6fa;
     --text-color: #23272f;
-    --link-color: #2563eb;
 }
 
 body {
@@ -99,13 +98,21 @@ button {
 }
 
 button:hover {
-    background-color: var(--accent-color);
+    background-color: var(--secondary-color);
 }
 
 a {
-    color: var(--link-color);
+    color: var(--background-color);
     text-decoration: none;
     font-size: 0.9rem;
+}
+
+p a {
+    color: var(--link-color)
+}
+
+.blog-title-container a {
+    color: var(--text-color)
 }
 
 a:hover {
@@ -183,7 +190,7 @@ section {
 }
 
 .description-blog {
-    padding: 20px 0 40px 0;
+    padding: 40px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -193,7 +200,7 @@ section {
 .description-blog p {
     font-size: 1.12em;
     margin: 18px 0;
-    color: #3a3a3a;
+    color: var(--text-color);
     line-height: 1.7;
 }
 
@@ -256,8 +263,8 @@ img {
     margin-bottom: 100px;
 }
 
-.h1mt {
-    margin-top: 100px;
+.post-creation-page h1 {
+    margin: 75px 0;
 }
 
 .recent-blog {
