@@ -1,3 +1,12 @@
+<?php
+try {
+    $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Error fetch : " . $e->getMessage());
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <?php include('includes/head.php'); ?>
@@ -5,74 +14,65 @@
 <body>
     <?php include('includes/navbar.php'); ?>
     <main>
-        <?php if ($isLoggedIn) : ?>
-            <div class="welcome-message">
-                <p>Welcome back, <?= htmlspecialchars($_SESSION['username']); ?>!</p>
-            </div>
-        <?php else : ?>
-            <div class="login-message">
-                <p>You are not logged in. Please <a href="/login-page.php">log In</a> to access all features.</p>
-            </div>
-        <?php endif; ?>
-
         <section>
             <div class="blog-title-container">
-                <h2>Latest gaming blogs</h2>
-                <a href>View more posts ></a>
+                <h1>In the spotlight</h1>
             </div>
-            <div class="blog-posts-container">
-                <article class="blog-post">
-                    <a href="post-detail.php">
-                        <img src="https://images.frandroid.com/wp-content/uploads/2025/01/16x9-nintendoswitch2.jpg">
-                        <h2>Everything you need to know about the Nintendo Switch 2</h2>
-                        <p class="post-date">2025-06-20</p>
-                    </a>
-                </article>
-                <article class="blog-post">
+            <div class="blog-post-spotlight">
+                <article class="blog-post-big-news">
                     <a href="#">
-                        <img src="https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd0a39bc3-6953-487c-92ec-9c0577fa76be_4148x2771.jpeg">
-                        <h2>Xbox Handheld: Another portable console that nobody needs</h2>
-                        <p class="post-date">2025-06-18</p>
+                        <img src="https://jvmag.ch/wp-content/uploads/2025/06/playstation-6-1024x576.jpg" alt="PlayStation 6">
+                        <h2>PlayStation 6 is officially a very big priority at Sony</h2>
+                        <p class="post-date">2025-06-10</p>
                     </a>
                 </article>
-                <article class="blog-post">
-                    <a href="#">
-                        <img src="https://www.numerama.com/wp-content/uploads/2025/03/the-witcher-4-technical-presentation.jpg">
-                        <h2>60fps as a target - The Witcher 4 should also impress on consoles</h2>
-                        <p class="post-date">2025-06-15</p>
-                    </a>
-                </article>
+                <div class="second-blog-spotlight-container">
+                    <article class="blog-post">
+                        <a href="#">
+                            <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg?t=1683566799" alt="Counter-Strike 2">
+                            <h2>Counter-Strike 2: What's changed and what to expect</h2>
+                            <p class="post-date">2025-06-08</p>
+                        </a>
+                    </article>
+                    <article class="blog-post">
+                        <a href="#">
+                            <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1716740/capsule_616x353.jpg?t=1749757928" alt="Starfield Update">
+                            <h2>Starfield receives huge update: performance & mod support improved</h2>
+                            <p class="post-date">2025-06-05</p>
+                        </a>
+                    </article>
+                </div>
             </div>
         </section>
 
         <section>
             <div class="blog-title-container">
-                <h2>Trending blogs</h2>
-                <a href="#">View more posts ></a>
+                <h1>Latest gaming blogs</h1>
             </div>
-            <div class="blog-posts-container">
+            <?php
+            $stmt = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC");
+            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $count = 0;
+            foreach ($posts as $index => $post) {
+                if ($count % 3 == 0) {
+                    echo '<div class="blog-posts-container">';
+                }
+            ?>
                 <article class="blog-post">
-                    <a href="#">
-                        <img src="https://jvmag.ch/wp-content/uploads/2025/06/playstation-6-1024x576.jpg">
-                        <h2>PlayStation 6 is officially a very big priority at Sony</h2>
-                        <p class="post-date">2025-06-10</p>
+                    <a href="post-detail.php?id=<?= $post['id'] ?>">
+                        <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
+                        <h2><?= htmlspecialchars($post['title']) ?></h2>
+                        <p class="post-date"><?= htmlspecialchars($post['created_at']) ?></p>
                     </a>
                 </article>
-                <article class="blog-post">
-                    <a href="#">
-                        <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg?t=1683566799">
-                        <h2>Counter-Strike 2: What's changed and what to expect</h2>
-                        <p class="post-date">2025-06-08</p>
-                    </a>
-                </article>
-                <article class="blog-post">
-                    <a href="#">
-                        <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1716740/capsule_616x353.jpg?t=1749757928">
-                        <h2>Starfield receives huge update: performance & mod support improved</h2>
-                        <p class="post-date">2025-06-05</p>
-                    </a>
-                </article>
-            </div>
+            <?php
+                $count++;
+                if ($count % 3 == 0 || $index == count($posts) - 1) {
+                    echo '</div>';
+                }
+            }
+            ?>
         </section>
     </main>
     <footer>
