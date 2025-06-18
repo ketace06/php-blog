@@ -1,3 +1,67 @@
+<?php
+session_start();
+
+if (isset($_POST['post-blog'])) {
+    $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $title = trim($_POST['title']);
+    $content = trim($_POST['content']);
+    $user_id = $_SESSION['user_id'];
+    $img = "";
+
+    $errors = [];
+
+    if (empty($title) || empty($content)) {
+        $errors[] = "Title and Content are required.";
+    }
+
+    if (strlen($title) < 5) {
+        $errors[] = "Title must be at least 5 characters.";
+    }
+
+    if (strlen($content) < 10) {
+        $errors[] = "Content must be at least 10 characters.";
+    }
+
+    if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
+        $imgTmpName = $_FILES['img']['tmp_name'];
+        $imgOriginalName = $_FILES['img']['name'];
+        $imgSize = $_FILES['img']['size'];
+        $imgType = mime_content_type($imgTmpName);
+
+        $allowedTypes = ['image/jpeg', 'image/png'];
+        if (!in_array($imgType, $allowedTypes)) {
+            $errors[] = "The file must be an image (JPEG or PNG).";
+        }
+        if ($imgSize > 4 * 1024 * 1024) {
+            $errors[] = "The image must be smaller than 4MB.";
+        }
+
+        if (empty($errors)) {
+            $img = uniqid('post_', true) . '.' . pathinfo($imgOriginalName, PATHINFO_EXTENSION);
+
+            $uploadDir = dirname(__DIR__) . '/uploads/';
+            $uploadPath = $uploadDir . $img;
+
+            if (!move_uploaded_file($imgTmpName, $uploadPath)) {
+                $errors[] = "Failed to upload the image.";
+            }
+        }
+    }
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("INSERT INTO posts (title, img, content, user_id) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$title, $img, $content, $user_id]);
+            header('Location: /index.php');
+            exit();
+        } catch (PDOException $e) {
+            $errors[] = "Database error: " . $e->getMessage();
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <?php include('includes/head.php'); ?>
@@ -8,48 +72,36 @@
     <main class="post-creation-page">
         <div>
             <h1>Create Your Blog Post!</h1>
-            <form class="form-container-creation">
+            <form class="form-container-creation" action="post-creation.php" method="POST" enctype="multipart/form-data">
                 <div>
                     <label for="title">Title</label>
-                    <input type="text" id="title" name="title" required>
+                    <input type="text" id="title" name="title" required value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '' ?>">
                 </div>
+
                 <div>
-                    <label for="author">Author</label>
-                    <input type="text" id="author" name="author" required>
+                    <label for="img">Cover Image</label>
+                    <input type="file" id="img" name="img" accept="image/jpeg, image/png">
                 </div>
-                <div>
-                    <label for="cover">Cover Image</label>
-                    <input type="file" id="cover" name="cover" accept="image/*" required>
-                </div>
+
                 <div>
                     <label for="content">Content</label>
-                    <textarea id="content" name="content" class="content" required></textarea>
+                    <textarea id="content" name="content" class="content" required><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
                 </div>
+
+                <?php
+                if (!empty($errors)) {
+                    echo '<div class="user-message error">';
+                    foreach ($errors as $error) {
+                        echo htmlspecialchars($error) . '<br>';
+                    }
+                    echo '</div>';
+                }
+                ?>
+
                 <div>
-                    <button type="submit">Create Post</button>
+                    <button type="submit" name="post-blog">Create Post</button>
                 </div>
             </form>
-        </div>
-        <h1>Recently published blogs</h1>
-        <div class="recently-published-card">
-            <div class="recent-blog">
-                <p>Everything you need to know about the Nintendo Switch 2</p>
-                <button type="button">Edit</button>
-                <input type="text" value="Everything you need to know about the Nintendo Switch 2">
-                <button type="button">Delete</button>
-            </div>
-            <div class="recent-blog">
-                <p>Everything you need to know about ...</p>
-                <button type="button">Edit</button>
-                <input type="text" value="Everything you need to know about ...">
-                <button type="button">Delete</button>
-            </div>
-            <div class="recent-blog">
-                <p>Everything you need to know about ...</p>
-                <button type="button">Edit</button>
-                <input type="text" value="Everything you need to know about ...">
-                <button type="button">Delete</button>
-            </div>
         </div>
     </main>
 </body>
