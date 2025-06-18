@@ -44,9 +44,15 @@ if (isset($_POST['post-blog'])) {
             $img = uniqid('post_', true) . '.' . pathinfo($imgOriginalName, PATHINFO_EXTENSION);
 
             $uploadDir = dirname(__DIR__) . '/public/uploads/';
+            if (!is_dir($uploadDir)) {
+                if (!mkdir($uploadDir, 0755, true)) {
+                    $errors[] = "Failed to create the uploads directory.";
+                }
+            }
+
             $uploadPath = $uploadDir . $img;
 
-            if (!move_uploaded_file($imgTmpName, $uploadPath)) {
+            if (empty($errors) && !move_uploaded_file($imgTmpName, $uploadPath)) {
                 $errors[] = "Failed to upload the image.";
             }
         }
