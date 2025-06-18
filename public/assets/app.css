@@ -48,8 +48,24 @@ nav {
 
 .nav-buttons {
     display: flex;
-    flex-direction: row;
-    gap: 25px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nav-buttons a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--background-color);
+}
+
+.nav-buttons p {
+    color: var(--background-color);
+    margin: 0;
+}
+
+.user-pic {
+    margin: 0;
 }
 
 nav img {
@@ -183,7 +199,7 @@ a:hover {
 .blog-post {
     border-radius: 10px;
     overflow: hidden;
-    max-width: 360px;
+    max-width: 400px;
 }
 
 .blog-title-container {
@@ -195,6 +211,35 @@ a:hover {
     border-bottom: 1px solid #ccc;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
+}
+
+.blog-post-spotlight {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 125px;
+}
+
+.blog-post-spotlight h2 {
+    color: var(--primary-color);
+}
+
+.blog-post-big-news {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.blog-post-big-news img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.second-blog-spotlight-container {
+    display: flex;
+    flex-direction: column;
 }
 
 .blog-posts-container {
@@ -222,6 +267,7 @@ a:hover {
 
 section {
     margin-bottom: 50px;
+    width: 100%;
 }
 
 .form-container-creation {
