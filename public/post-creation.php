@@ -39,7 +39,7 @@ if (isset($_POST['post-blog'])) {
         if ($imgSize > 4 * 1024 * 1024) {
             $errors[] = "The image must be smaller than 4MB.";
         }
-
+        
         if (empty($errors)) {
             $img = uniqid('post_', true) . '.' . pathinfo($imgOriginalName, PATHINFO_EXTENSION);
 
@@ -82,7 +82,7 @@ if (isset($_POST['post-blog'])) {
 
                 <div>
                     <label for="img">Cover Image</label>
-                    <input type="file" id="img" name="img" accept="image/jpeg, image/png" required>
+                    <input type="file" id="img" name="img" accept="image/jpeg, image/png" required size="4000000">
                 </div>
 
                 <div>
