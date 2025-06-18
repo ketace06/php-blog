@@ -39,11 +39,11 @@ if (isset($_POST['post-blog'])) {
         if ($imgSize > 4 * 1024 * 1024) {
             $errors[] = "The image must be smaller than 4MB.";
         }
-        
+
         if (empty($errors)) {
             $img = uniqid('post_', true) . '.' . pathinfo($imgOriginalName, PATHINFO_EXTENSION);
 
-            $uploadDir = dirname(__DIR__) . '/uploads/';
+            $uploadDir = dirname(__DIR__) . '/public/uploads/';
             $uploadPath = $uploadDir . $img;
 
             if (!move_uploaded_file($imgTmpName, $uploadPath)) {
