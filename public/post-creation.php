@@ -24,7 +24,9 @@ if (isset($_POST['post-blog'])) {
         $errors[] = "Content must be at least 10 characters.";
     }
 
-    if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
+    if (!isset($_FILES['img']) || $_FILES['img']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "A cover image is required.";
+    } else {
         $imgTmpName = $_FILES['img']['tmp_name'];
         $imgOriginalName = $_FILES['img']['name'];
         $imgSize = $_FILES['img']['size'];
@@ -80,7 +82,7 @@ if (isset($_POST['post-blog'])) {
 
                 <div>
                     <label for="img">Cover Image</label>
-                    <input type="file" id="img" name="img" accept="image/jpeg, image/png">
+                    <input type="file" id="img" name="img" accept="image/jpeg, image/png" required>
                 </div>
 
                 <div>
