@@ -8,13 +8,13 @@
 
     <main class="blog-description-page">
         <article>
+            <p>2025-06-20</p>
             <h1>Nintendo Switch 2 Release: Everything You Need to Know</h1>
             <p><strong>By Jane Doe</strong></p>
 
             <div class="cover-image">
                 <img src="https://images.frandroid.com/wp-content/uploads/2025/01/16x9-nintendoswitch2.jpg">
             </div>
-
             <div class="description-blog">
                 <p>
                     The much-awaited **Nintendo Switch 2** has finally been released, and fans around the world are buzzing with excitement. Nintendo’s follow-up to their wildly successful hybrid gaming console promises to deliver even better performance, innovative features, and more immersive gaming experiences.

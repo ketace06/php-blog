@@ -26,14 +26,23 @@ if (isset($_POST['signup'])) {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");
-        $stmt->execute([$username, $email]);
-        $exists = $stmt->fetchColumn();
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        $usernameExists = $stmt->fetchColumn();
 
-        if ($exists) {
-            $errors[] = "Username or email already exists.";
+        if ($usernameExists) {
+            $errors[] = "Username already exists.";
+        }
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $emailExists = $stmt->fetchColumn();
+
+        if ($emailExists) {
+            $errors[] = "Email already exists.";
         }
     }
+
 
     if (empty($errors)) {
         try {
@@ -62,7 +71,6 @@ if (isset($_POST['signup'])) {
             <input type="text" name="username" placeholder="Name" required value="<?php echo isset($username) ? htmlspecialchars($username) : ''; ?>">
             <input type="email" name="email" placeholder="Email" required value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>">
             <input type="password" name="password" placeholder="Password" required>
-
             <?php
             if (!empty($errors)) {
                 echo '<div class="user-message error">';
@@ -70,10 +78,6 @@ if (isset($_POST['signup'])) {
                     echo htmlspecialchars($error) . '<br>';
                 }
                 echo '</div>';
-            }
-
-            if (isset($successMessage)) {
-                echo '<div class="user-message success">' . htmlspecialchars($successMessage) . '</div>';
             }
             ?>
             <button type="submit" name="signup">Sign Up</button>

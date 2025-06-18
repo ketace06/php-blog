@@ -1,8 +1,3 @@
-<?php
-session_start();
-$isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <?php include('includes/head.php'); ?>
