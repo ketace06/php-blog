@@ -97,7 +97,9 @@ function renderPost($post)
         <a href="post-detail.php?id=<?= $post['id'] ?>">
             <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
             <h2><?= htmlspecialchars($post['title']) ?></h2>
-            <p class="post-date"><?= htmlspecialchars($post['created_at']) ?></p>
+            <p class="post-date">
+                <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) ?></p>
+            </p>
         </a>
         <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
 

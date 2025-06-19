@@ -34,7 +34,7 @@ if (!$post) {
         <article>
             <div class="description-blog">
                 <h1><?= htmlspecialchars($post['title']) ?></h1>
-                <p class="post-date"><?= htmlspecialchars($post['created_at']) ?></p>
+                <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) ?></p>
                 <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
                 <p><?= htmlspecialchars($post['content']) ?></p>
             </div>
