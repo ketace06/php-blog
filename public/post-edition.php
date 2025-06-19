@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 function renderPost($post)
 {
-?>
+    ?>
     <article class="blog-post">
         <a href="post-detail.php?id=<?= $post['id'] ?>">
             <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
@@ -102,6 +102,7 @@ function renderPost($post)
         <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
 
         <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['id']): ?>
+
             <a href="post-edition.php"><button type="button">Cancel changes</button></a>
 
             <form method="POST" enctype="multipart/form-data" action="post-edition.php?edit=<?= $post['id'] ?>">
@@ -126,7 +127,25 @@ function renderPost($post)
     </article>
 <?php
 }
+
+if ($isEdit) {
+    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
+    $stmt->execute([$postId]);
+    $editPost = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$editPost) {
+        http_response_code(404);
+        die();
+    }
+
+    if (!isset($_SESSION['user_id']) || $editPost['user_id'] != $_SESSION['user_id']) {
+        http_response_code(401);
+        die();
+    }
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <?php include('includes/head.php'); ?>
@@ -145,23 +164,23 @@ function renderPost($post)
                 echo '</ul>';
             }
 
-            $count = 0;
-            foreach ($posts as $index => $post) {
-                if ($count % 3 == 0) {
-                    echo '<div class="blog-posts-container">';
-                }
+$count = 0;
+foreach ($posts as $index => $post) {
+    if ($count % 3 == 0) {
+        echo '<div class="blog-posts-container">';
+    }
 
-                renderPost($post);
+    renderPost($post);
 
-                $count++;
-                if ($count % 3 == 0 || $index == count($posts) - 1) {
-                    echo '</div>';
-                }
-            }
-            if (count($posts) === 0) {
-                echo '<p>You have not published any posts</p>';
-            }
-            ?>
+    $count++;
+    if ($count % 3 == 0 || $index == count($posts) - 1) {
+        echo '</div>';
+    }
+}
+if (count($posts) === 0) {
+    echo '<p>You have not published any posts</p>';
+}
+?>
         </main>
     </div>
 </body>

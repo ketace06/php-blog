@@ -80,11 +80,11 @@ try {
             </div>
             <?php
             $count = 0;
-            foreach ($posts as $index => $post) {
-                if ($count % 3 == 0) {
-                    echo '<div class="blog-posts-container">';
-                }
-            ?>
+foreach ($posts as $index => $post) {
+    if ($count % 3 == 0) {
+        echo '<div class="blog-posts-container">';
+    }
+    ?>
                 <article class="blog-post">
                     <a href="post-detail.php?id=<?= $post['id'] ?>">
                         <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
@@ -93,12 +93,12 @@ try {
                     </a>
                 </article>
             <?php
-                $count++;
-                if ($count % 3 == 0 || $index == count($posts) - 1) {
-                    echo '</div>';
-                }
-            }
-            ?>
+        $count++;
+    if ($count % 3 == 0 || $index == count($posts) - 1) {
+        echo '</div>';
+    }
+}
+?>
         </section>
     </main>
     <footer>

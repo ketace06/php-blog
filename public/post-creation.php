@@ -103,7 +103,7 @@ if (isset($_POST['post-blog'])) {
                     }
                     echo '</div>';
                 }
-                ?>
+?>
 
                 <div>
                     <button type="submit" name="post-blog">Create Post</button>

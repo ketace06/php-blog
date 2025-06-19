@@ -80,7 +80,7 @@ if (isset($_POST['signup'])) {
                 }
                 echo '</div>';
             }
-            ?>
+?>
             <button type="submit" name="signup">Sign Up</button>
         </form>
 
