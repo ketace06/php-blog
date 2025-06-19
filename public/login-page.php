@@ -5,8 +5,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+        if (!$email) {
             $errorMessage = "Invalid email format.";
         } else {
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
@@ -21,11 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 session_regenerate_id(true);
                 header('Location: /index.php');
                 exit;
-            }
-            elseif ($user) {
+            } elseif ($user) {
                 $errorMessage = "Incorrect password. Please try again.";
-            }
-            else {
+            } else {
                 $errorMessage = "No account exists with this email address. Please check the email entered or create a new account if you don't have one yet.";
             }
         }
