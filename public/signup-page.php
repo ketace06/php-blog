@@ -1,4 +1,5 @@
 <?php
+session_start();
 if (isset($_POST['signup'])) {
     $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

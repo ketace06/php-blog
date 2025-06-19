@@ -1,4 +1,8 @@
 <?php
+session_start();
+$currentUserId = $_SESSION['user_id'] ?? null;
+$isAuthor = $currentUserId && $post['user_id'] === $currentUserId;
+
 try {
     $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

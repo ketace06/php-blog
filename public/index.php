@@ -1,9 +1,38 @@
 <?php
+session_start();
+
+if (isset($_SESSION['user_id'])) {
+    try {
+        $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = :id");
+        $stmt->execute(['id' => $_SESSION['user_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            session_unset();
+            session_destroy();
+            header('Location: /login-page.php');
+            exit;
+        }
+    } catch (PDOException $e) {
+        session_unset();
+        session_destroy();
+        header('Location: /login-page.php');
+        exit;
+    }
+}
+
 try {
     $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $pdo->prepare("SELECT * FROM posts ORDER BY created_at DESC");
+    $stmt->execute();
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Error fetch : " . $e->getMessage());
+    die("Error fetch: " . $e->getMessage());
 }
 ?>
 
@@ -50,9 +79,6 @@ try {
                 <h1>Latest gaming blogs</h1>
             </div>
             <?php
-            $stmt = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC");
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             $count = 0;
             foreach ($posts as $index => $post) {
                 if ($count % 3 == 0) {

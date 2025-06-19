@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 $isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
 
 $protectedPages = ['post-creation.php', 'post-edition.php', 'logout.php'];
