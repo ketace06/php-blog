@@ -6,14 +6,16 @@ try {
     die("Error fetch : " . $e->getMessage());
 }
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
+
 
 $stmt = $pdo->prepare('SELECT * FROM posts WHERE id = :id');
 $stmt->execute(['id' => $id]);
 $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$post) {
-    die('Post not found.');
+    http_response_code(404);
+    die();
 }
 ?>
 
