@@ -294,6 +294,8 @@ section {
 }
 
 .description-blog {
+    display: flex;
+    flex-direction: column;
     padding: 40px;
     background: #fff;
     border-radius: 10px;
@@ -308,12 +310,21 @@ section {
     line-height: 1.7;
 }
 
-.description-blog h2 {
+.description-blog h1 {
     font-size: 1.8em;
     margin-top: 36px;
     border-bottom: 2px solid #e0e0e0;
     padding-bottom: 8px;
     letter-spacing: 0.5px;
+}
+
+.description-blog p {
+    margin: 0;
+    font-size: 1em;
+}
+
+.post-date {
+    font-size: 1.2em;
 }
 
 .description-blog ul {
