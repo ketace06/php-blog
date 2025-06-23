@@ -1,15 +1,17 @@
 <?php
-session_start();
+include('includes/config.php');
+
+$isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
+
+if (!$isLoggedIn) {
+    $_SESSION['flash_message'] = "<p class='message-user'>You don't have an account, so you can't use all the site's features. <br> Join our community by <a href='/signup-page.php'>creating an account</a>.</p>";
+}
 
 if (isset($_SESSION['user_id'])) {
     try {
-        $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         $stmt = $pdo->prepare("SELECT id FROM users WHERE id = :id");
         $stmt->execute(['id' => $_SESSION['user_id']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
         if (!$user) {
             session_unset();
             session_destroy();
@@ -25,9 +27,6 @@ if (isset($_SESSION['user_id'])) {
 }
 
 try {
-    $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     $stmt = $pdo->prepare("SELECT * FROM posts ORDER BY created_at DESC");
     $stmt->execute();
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);

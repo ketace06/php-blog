@@ -1,11 +1,10 @@
 <?php
-session_start();
+include('includes/config.php');
+
 $currentUserId = $_SESSION['user_id'] ?? null;
 $isAuthor = $currentUserId && $post['user_id'] === $currentUserId;
 
 try {
-    $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Error fetch : " . $e->getMessage());
 }

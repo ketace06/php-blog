@@ -1,10 +1,8 @@
 <?php
-session_start();
+include('includes/config.php');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     try {
-        $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
         if (!$email) {
             $errorMessage = "Invalid email format.";

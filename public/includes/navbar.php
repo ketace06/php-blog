@@ -1,6 +1,5 @@
 <?php
-session_start();
-$isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
+include('includes/config.php');
 ?>
 
 
