@@ -48,6 +48,7 @@ p {
     font-size: 2rem;
     font-weight: bold;
     color: var(--link-color);
+    text-decoration: none;
 }
 
 nav {
@@ -189,6 +190,7 @@ a {
     color: var(--background-color);
     text-decoration: none;
     font-size: 0.9rem;
+    cursor: pointer;
 }
 
 p a {
@@ -391,49 +393,55 @@ img {
     color: var(--user-msg-color)
 }
 
-.flash-message {
+.profile-settings-container aside {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: #4caf50;
-    color: white;
-    padding: 15px;
-    border-radius: 5px;
-    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    left: 100px;
+    align-items: start;
+
 }
 
-.flash_errors {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: #e60d0d;
+.profile-settings-container aside a {
+    padding: 0;
+    text-decoration: none;
+}
+
+.settings-page {
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-card-profile {
+    background-color: var(--secondary-color);
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.user-card-profile p{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
     color: white;
-    padding: 15px;
-    border-radius: 5px;
+}
+
+.username {
     font-weight: bold;
-    z-index: 10;
+    color: var(--link-color);
 }
 
-.message-user {
-    color: white;
-}
-
-.message-user a {
-    color: yellow;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.edit-content {
-    width: 90%;
-    height: 300px;
-    padding: 15px;
-    font-size: 16px;
-    line-height: 1.5;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    color: #333;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    resize: vertical;
+.logout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
