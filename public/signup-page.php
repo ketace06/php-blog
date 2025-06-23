@@ -1,16 +1,14 @@
 <?php
-session_start();
+include('includes/config.php');
 if (isset($_POST['signup'])) {
-    $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
+    $verifyPassword = $_POST['verify-password'];
 
     $errors = [];
 
-    if (empty($username) || empty($email) || empty($password)) {
+    if (empty($username) || empty($email) || empty($password) || empty($verifyPassword)) {
         $errors[] = "All fields are required.";
     }
 
@@ -24,6 +22,10 @@ if (isset($_POST['signup'])) {
 
     if (strlen($password) < 6) {
         $errors[] = "Password must be at least 6 characters.";
+    }
+
+    if ($password !== $verifyPassword) {
+        $errors[] = "Passwords do not match.";
     }
 
     if (empty($errors)) {
@@ -44,13 +46,13 @@ if (isset($_POST['signup'])) {
         }
     }
 
-
     if (empty($errors)) {
         try {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$username, $email, $passwordHash]);
+
+            $_SESSION['flash_message'] = "The account has been successfully created.";
             header('Location: /login-page.php');
             exit();
         } catch (PDOException $e) {
@@ -59,6 +61,7 @@ if (isset($_POST['signup'])) {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -72,6 +75,7 @@ if (isset($_POST['signup'])) {
             <input type="text" name="username" placeholder="Name" required value="<?php echo isset($username) ? htmlspecialchars($username) : ''; ?>">
             <input type="email" name="email" placeholder="Email" required value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>">
             <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="verify-password" placeholder="Verify password" required>
             <?php
             if (!empty($errors)) {
                 echo '<div class="user-message error">';

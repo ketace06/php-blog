@@ -1,9 +1,14 @@
 <?php
-session_start();
-try {
-    $pdo = new PDO('sqlite:' . dirname(__DIR__) . '/database.db');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+include('includes/config.php');
 
+$isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
+$postId = $isEdit ? (int)$_GET['edit'] : null;
+
+
+// créer plus tard des erreurs http pour les requêtes de pages non autorisées ou inexistantes.
+
+
+try {
     $stmt = $pdo->prepare("SELECT * FROM posts WHERE user_id = :user_id ORDER BY created_at DESC");
     $stmt->execute(['user_id' => $_SESSION['user_id']]);
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -11,8 +16,6 @@ try {
     die("Error fetch: " . $e->getMessage());
 }
 
-$isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
-$postId = $isEdit ? (int) $_GET['edit'] : null;
 
 $title = trim($_POST['title'] ?? '');
 $content = trim($_POST['content'] ?? '');
@@ -82,11 +85,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$title, $img, $content, $user_id]);
                 }
             }
+
+            $_SESSION['flash_message'] = "Your blog has been successfully edited.";
             header('Location: /post-edition.php');
             exit();
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();
         }
+    } else {
+        $_SESSION['flash_errors'] = implode('<br>', $errors);
     }
 }
 
@@ -113,13 +120,13 @@ function renderPost($post)
                     <input type="text" id="title<?= $post['id'] ?>" name="title" value="<?= htmlspecialchars($post['title']) ?>">
                 </div>
                 <div>
-                    <label for="img<?= $post['id'] ?>">Image:</label>
+                    <label for="img<?= $post['id'] ?>">Cover image:</label>
                     <input type="file" id="img<?= $post['id'] ?>" name="img">
                     <small>Current image: <?= htmlspecialchars($post['img']) ?></small>
                 </div>
                 <div>
                     <label for="content<?= $post['id'] ?>">Content:</label>
-                    <textarea id="content<?= $post['id'] ?>" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
+                    <textarea id="content<?= $post['id'] ?>" class="edit-content" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
                 </div>
                 <button type="submit">Save Changes</button>
             </form>
@@ -130,22 +137,6 @@ function renderPost($post)
 <?php
 }
 
-if ($isEdit) {
-    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
-    $stmt->execute([$postId]);
-    $editPost = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$editPost) {
-        http_response_code(404);
-        die();
-    }
-
-    if (!isset($_SESSION['user_id']) || $editPost['user_id'] != $_SESSION['user_id']) {
-        http_response_code(401);
-        die();
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -154,19 +145,11 @@ if ($isEdit) {
 
 <body>
     <?php include('includes/navbar.php'); ?>
-    <h1>Recently Published Blogs</h1>
     <div class="recently-published-card">
         <main class="blog-description-page">
+            <h1>Recently Published Blogs</h1>
             <?php
-            if (!empty($errors)) {
-                echo '<ul class="error-messages">';
-                foreach ($errors as $error) {
-                    echo '<li>' . htmlspecialchars($error) . '</li>';
-                }
-                echo '</ul>';
-            }
-
-$count = 0;
+            $count = 0;
 foreach ($posts as $index => $post) {
     if ($count % 3 == 0) {
         echo '<div class="blog-posts-container">';

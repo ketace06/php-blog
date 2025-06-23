@@ -219,6 +219,8 @@ a:hover {
     flex-direction: row;
     align-items: flex-start;
     gap: 125px;
+    justify-content: space-between;
+
 }
 
 .blog-post-big-news {
@@ -247,7 +249,7 @@ a:hover {
 .blog-post {
     border-radius: 10px;
     overflow: hidden;
-    width: 400px;
+    width: 450px;
 }
 
 .blog-post img {
@@ -349,7 +351,7 @@ section {
     display: flex;
     flex-wrap: wrap;
     gap: 40px;
-    margin: 80px 5vw 60px 5vw;
+    margin: 150px 5vw;
     align-items: flex-start;
     justify-content: center;
 }
@@ -387,4 +389,51 @@ img {
 
 .user-message {
     color: var(--user-msg-color)
+}
+
+.flash-message {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: #4caf50;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.flash_errors {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: #e60d0d;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.message-user {
+    color: white;
+}
+
+.message-user a {
+    color: yellow;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.edit-content {
+    width: 90%;
+    height: 300px;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.5;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    resize: vertical;
 }
