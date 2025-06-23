@@ -78,7 +78,7 @@ if (isset($_POST['signup'])) {
             <input type="password" name="verify-password" placeholder="Verify password" required>
             <?php
             if (!empty($errors)) {
-                echo '<div class="user-message error">';
+                echo '<div class="message-user-creation">';
                 foreach ($errors as $error) {
                     echo htmlspecialchars($error) . '<br>';
                 }

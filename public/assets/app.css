@@ -389,11 +389,16 @@ img {
     margin-bottom: 100px;
 }
 
-.user-message {
-    color: var(--user-msg-color)
+.message-user-creation {
+    color: var(--user-msg-color);
 }
 
-.flash-message, .flash_errors {
+.message-user-update {
+    color: white;
+}
+
+.flash-message,
+.flash_errors {
     position: fixed;
     bottom: 10px;
     right: 10px;
@@ -420,12 +425,15 @@ img {
     0% {
         opacity: 0;
     }
+
     10% {
         opacity: 1;
     }
+
     90% {
         opacity: 1;
     }
+
     100% {
         opacity: 0;
     }
@@ -455,6 +463,7 @@ img {
     from {
         width: 100%;
     }
+
     to {
         width: 0%;
     }
@@ -484,6 +493,7 @@ img {
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     resize: vertical;
 }
+
 .profile-settings-container aside {
     position: fixed;
     display: flex;
@@ -513,10 +523,10 @@ img {
     padding: 10px 20px;
     border-radius: 10px;
     justify-content: space-between;
-    width: 100%;
+    width: 35vw;
 }
 
-.user-card-profile p{
+.user-card-profile p {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -546,7 +556,7 @@ img {
     border-radius: 5px;
     z-index: 10;
     opacity: 0;
-    animation: fadeInOut 10s forwards;
+    animation: fadeInOut 6s forwards;
     color: white;
 
 }
