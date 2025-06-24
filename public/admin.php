@@ -1,41 +1,6 @@
 <?php
 include('includes/config.php');
 
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $postId = (int)$_GET['delete'];
-
-    if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $postId) {
-        try {
-            $stmt = $pdo->prepare("SELECT img FROM posts WHERE id = ?");
-            $stmt->execute([$postId]);
-            $post = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($post && !empty($post['img'])) {
-                $imagePath = dirname(__DIR__) . '/public/uploads/' . $post['img'];
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-            }
-
-            $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
-            $stmt->execute([$postId]);
-
-            $_SESSION['flash_message'] = "Post successfully deleted.";
-            header('Location: post-edition.php');
-            exit();
-        } catch (PDOException $e) {
-            $_SESSION['flash_errors'] = "Error deleting post: " . $e->getMessage();
-            header('Location: post-edition.php');
-            exit();
-        }
-    } else {
-        $_SESSION['flash_errors'] = "You don't have permission to delete this post.";
-        header('Location: post-edition.php');
-        exit();
-    }
-}
-
-
 $title = trim($_POST['title'] ?? '');
 $content = trim($_POST['content'] ?? '');
 $user_id = $_SESSION['user_id'];
@@ -44,6 +9,10 @@ $errors = [];
 
 $isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
 $postId = $isEdit ? (int)$_GET['edit'] : null;
+
+$stmt = $pdo->prepare("SELECT users.username FROM users");
+$stmt->execute();
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SESSION['role'] === 'admin') {
     $stmt = $pdo->prepare("SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC");
@@ -124,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $_SESSION['flash_message'] = "Your blog has been successfully updated.";
-            header('Location: post-edition.php');
+            header('Location: /post-edition.php');
             exit();
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();
@@ -169,7 +138,6 @@ function renderPost($post)
                 <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
                 <?php if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']): ?>
                     <a href="post-edition.php?edit=<?= $post['id'] ?>"><button type="button">Edit</button></a>
-                    <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -185,10 +153,26 @@ function renderPost($post)
     <?php include('includes/navbar.php'); ?>
     <div class="recently-published-card">
         <main class="blog-description-page">
-            <h1>Recent posts</h1>
+            <h1>Admin's dashboard</h1>
+            <div class="user-container">
+                <ul class="user-list">
+                    <?php foreach ($users as $user): ?>
+                        <li class="user-item"><?= htmlspecialchars($user['username']) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="cool-div">
+                <h1>Recent Posts Management</h1>
+                <a href="post-edition.php">View and edit all posts ></a>
+            </div>
             <?php
             $count = 0;
+$limit = 3;
 foreach ($posts as $index => $post) {
+    if ($count >= $limit) {
+        break;
+    }
+
     if ($count % 3 == 0) {
         echo '<div class="blog-posts-container">';
     }
@@ -196,11 +180,13 @@ foreach ($posts as $index => $post) {
     renderPost($post);
 
     $count++;
+
     if ($count % 3 == 0 || $index == count($posts) - 1) {
         echo '</div>';
     }
 }
-if (count($posts) === 0) {
+
+if ($count === 0) {
     echo '<p>There are no posts</p>';
 }
 ?>

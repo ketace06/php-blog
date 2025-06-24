@@ -6,7 +6,7 @@ if (!$isLoggedIn) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM posts ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC");
     $stmt->execute();
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -52,7 +52,7 @@ try {
 
         <section>
             <div class="blog-title-container">
-                <h1>Latest gaming blogs</h1>
+                <h1>Recent posts</h1>
             </div>
             <?php
             $count = 0;
@@ -65,7 +65,8 @@ foreach ($posts as $index => $post) {
                     <a href="post-detail.php?id=<?= $post['id'] ?>">
                         <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
                         <h2><?= htmlspecialchars($post['title']) ?></h2>
-                        <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) ?></p>
+                        <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
+
                     </a>
                 </article>
             <?php

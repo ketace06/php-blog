@@ -4,9 +4,9 @@ include('includes/config.php');
 
 
 <nav>
-    <a href="/" class="site-title">The daily loot</a>
+    <a href="/" class="site-title">The daily Loot</a>
     <div class="nav-buttons">
-        <a href="/profile.php">
+        <a href="/profile-nav.php">
             <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" class="user-pic" alt="User Profile">
             <?php if ($isLoggedIn) : ?>
                 <p><?= htmlspecialchars($_SESSION['username']); ?></p>

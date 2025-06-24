@@ -1,10 +1,12 @@
 <?php
 include('includes/config.php');
+
 if (isset($_POST['signup'])) {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $verifyPassword = $_POST['verify-password'];
+    $role = 'user';
 
     $errors = [];
 
@@ -49,8 +51,8 @@ if (isset($_POST['signup'])) {
     if (empty($errors)) {
         try {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-            $stmt->execute([$username, $email, $passwordHash]);
+            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$username, $email, $passwordHash, $role]);
 
             $_SESSION['username'] = $username;
             $_SESSION['flash_message'] = "The account has been successfully created. <br> Welcome " . $_SESSION['username'] . "!";
@@ -86,7 +88,7 @@ if (isset($_POST['signup'])) {
         </form>
     </div>
     <p>Already have an account? <a href="/login-page.php">Log in</a>.</p>
-    <p>If you want to continue without an account <a href="/index.php">Click here</a>.</p>
+    <p>If you want to continue as a guest <a href="/index.php">Click here</a>.</p>
 </body>
 
 </html>

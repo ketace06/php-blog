@@ -299,7 +299,7 @@ section {
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
-    margin: 3rem 0
+    margin: 3rem 0;
 }
 
 .description-blog p {
@@ -326,31 +326,14 @@ section {
     font-size: 1.2em
 }
 
-.description-blog ul {
-    padding-left: 0;
-    margin: 24px 0;
-    list-style-type: none
-}
-
-.description-blog li {
-    margin-bottom: 12px;
-    font-size: 1.08em;
-    line-height: 1.7;
-    color: #222
-}
-
-.description-blog li strong {
-    color: var(--primary-color);
-    font-weight: 700
-}
-
 .blog-description-page {
     display: flex;
     flex-wrap: wrap;
     gap: 40px;
     margin: 150px 5vw;
-    align-items: flex-start;
-    justify-content: center
+    align-items: center;
+    justify-content: center;
+    width: 70vw;
 }
 
 img {
@@ -529,6 +512,12 @@ img {
     margin-bottom: 15px;
 }
 
+.actions-button-edit {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .user-card-profile p {
     display: flex;
     flex-direction: column;
@@ -667,4 +656,67 @@ img {
     color: #333;
     transition: border-color .3s ease, box-shadow .3s ease;
     resize: vertical
+}
+
+.user-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 40px;
+    overflow-y: auto;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+    width: 350px;
+}
+
+.user-item {
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.user-item:hover {
+    transform: translateX(5px);
+}
+
+.user-item:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+.user-item::after {
+    content: '🔧';
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.user-item:hover::after {
+    transform: rotate(15deg);
+}
+
+.cool-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.cool-div a {
+    color: black;
 }

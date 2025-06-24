@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="post-creation-page">
         <div>
-            <h1>Blog creation</h1>
+            <h1>Post creation</h1>
             <form class="form-container-creation" action="post-creation.php" method="POST" enctype="multipart/form-data">
                 <div>
                     <label for="title">Title</label>
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div>
-                    <button type="submit" name="post-blog">Create Post</button>
+                    <button type="submit" name="post-blog">Send the post</button>
                 </div>
             </form>
         </div>
