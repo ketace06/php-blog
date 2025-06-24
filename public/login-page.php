@@ -32,8 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>

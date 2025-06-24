@@ -1,29 +1,8 @@
 <?php
 include('includes/config.php');
 
-$isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
-
 if (!$isLoggedIn) {
     $_SESSION['flash_message'] = "<p class='message-user'>You don't have an account, so you can't use all the site's features. <br> Join our community by <a href='/signup-page.php'>creating an account</a>.</p>";
-}
-
-if (isset($_SESSION['user_id'])) {
-    try {
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = :id");
-        $stmt->execute(['id' => $_SESSION['user_id']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$user) {
-            session_unset();
-            session_destroy();
-            header('Location: /login-page.php');
-            exit;
-        }
-    } catch (PDOException $e) {
-        session_unset();
-        session_destroy();
-        header('Location: /login-page.php');
-        exit;
-    }
 }
 
 try {
@@ -35,8 +14,6 @@ try {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>

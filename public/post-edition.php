@@ -1,27 +1,30 @@
 <?php
 include('includes/config.php');
 
+$title = trim($_POST['title'] ?? '');
+$content = trim($_POST['content'] ?? '');
+$user_id = $_SESSION['user_id'];
+$img = "";
+$errors = [];
+
 $isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
 $postId = $isEdit ? (int)$_GET['edit'] : null;
 
 
-// créer plus tard des erreurs http pour les requêtes de pages non autorisées ou inexistantes.
-
+if ($postid != $user_id) {
+    http_response_code(403);
+}
 
 try {
     $stmt = $pdo->prepare("SELECT * FROM posts WHERE user_id = :user_id ORDER BY created_at DESC");
-    $stmt->execute(['user_id' => $_SESSION['user_id']]);
+    $stmt->execute(['user_id' => $user_id]);
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Error fetch: " . $e->getMessage());
 }
 
 
-$title = trim($_POST['title'] ?? '');
-$content = trim($_POST['content'] ?? '');
-$user_id = $_SESSION['user_id'];
-$img = "";
-$errors = [];
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($title) || empty($content)) {
@@ -139,8 +142,6 @@ function renderPost($post)
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>

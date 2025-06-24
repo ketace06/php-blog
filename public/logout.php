@@ -8,8 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_logout'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
 <?php include('includes/head.php'); ?>
 
 <body>

@@ -52,7 +52,8 @@ if (isset($_POST['signup'])) {
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$username, $email, $passwordHash]);
 
-            $_SESSION['flash_message'] = "The account has been successfully created.";
+            $_SESSION['username'] = $username;
+            $_SESSION['flash_message'] = "The account has been successfully created. <br> Welcome " . $_SESSION['username'] . "!";
             header('Location: /login-page.php');
             exit();
         } catch (PDOException $e) {
@@ -62,10 +63,6 @@ if (isset($_POST['signup'])) {
 }
 ?>
 
-
-
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>
@@ -87,7 +84,6 @@ if (isset($_POST['signup'])) {
 ?>
             <button type="submit" name="signup">Sign Up</button>
         </form>
-
     </div>
     <p>Already have an account? <a href="/login-page.php">Log in</a>.</p>
     <p>If you want to continue without an account <a href="/index.php">Click here</a>.</p>

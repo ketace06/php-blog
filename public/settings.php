@@ -1,6 +1,8 @@
 <?php
 include('includes/config.php');
 
+$edit_mode = isset($_GET['edit']);
+
 if (isset($_POST['update_account'])) {
     $user_id = $_SESSION['user_id'];
     $username = trim($_POST['username']);
@@ -51,15 +53,10 @@ if (isset($_POST['update_account'])) {
     if (empty($errors)) {
         try {
             $query = "UPDATE users SET username = ?, email = ?";
-
             if (!empty($password)) {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
                 $query .= ", password = ?";
             }
-
-            $_SESSION['username'] = $username;
-            $_SESSION['email'] = $email;
-
             $query .= " WHERE id = ?";
             $stmt = $pdo->prepare($query);
             if (!empty($password)) {
@@ -68,8 +65,11 @@ if (isset($_POST['update_account'])) {
                 $stmt->execute([$username, $email, $user_id]);
             }
 
+            $_SESSION['username'] = $username;
+            $_SESSION['email'] = $email;
+
             $_SESSION['flash_message'] = "Profile updated successfully.";
-            header('Location: settings.php');
+            header("Location: settings.php");
             exit();
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();
@@ -78,8 +78,6 @@ if (isset($_POST['update_account'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body class="settings-page">
@@ -99,22 +97,37 @@ if (isset($_POST['update_account'])) {
         </aside>
     </div>
     <div class="profile-settings-container">
-        <h1>Profile settings of <span class="username"><?= htmlspecialchars($_SESSION['username']); ?></span></h1>
+        <?php if ($edit_mode): ?>
+            <h1>Profile edition of <span class="username"><?= htmlspecialchars($_SESSION['username']); ?></span></h1>
 
-        <form class="user-card-profile" action="settings.php" method="POST">
-            <p><strong>Username:</strong> <input type="text" name="username" value="<?= htmlspecialchars($_SESSION['username']); ?>"></p>
-            <p><strong>Email:</strong> <input type="email" name="email" value="<?= htmlspecialchars($_SESSION['email']); ?>"></p>
-            <p><strong>Password:</strong> <input type="password" name="password" placeholder="Enter new password (leave blank to keep current)"></p>
-            <p><strong>Verify password:</strong> <input type="password" name="verify-password" placeholder="Verify your new password"></p>
-            <button type="submit" name="update_account">Update Profile</button>
-            <?php if (!empty($errors)) {
-                echo '<div class="message-user-update">';
-                foreach ($errors as $error) {
-                    echo htmlspecialchars($error) . '<br>';
-                }
-                echo '</div>';
-            } ?>
-        </form>
+            <form class="user-card-profile" action="settings.php" method="POST">
+                <p><strong>Username:</strong> <input type="text" name="username" value="<?= htmlspecialchars($_SESSION['username']); ?>"></p>
+                <p><strong>Email:</strong> <input type="email" name="email" value="<?= htmlspecialchars($_SESSION['email']); ?>"></p>
+                <p><strong>Password:</strong> <input type="password" name="password" placeholder="Enter new password (leave blank to keep current)"></p>
+                <p><strong>Verify password:</strong> <input type="password" name="verify-password" placeholder="Verify your new password"></p>
+                <div class="actions-button-profile">
+                    <a href="settings.php"><button type="button">Cancel</button></a>
+                    <button type="submit" name="update_account">Update Profile</button>
+                </div>
+            </form>
+        <?php else: ?>
+            <h1>Profile of <span class="username"><?= htmlspecialchars($_SESSION['username']); ?></span></h1>
+
+            <div class="user-card-profile">
+
+                <p class="user-card-profile-p"><strong>Username:</strong> <?= htmlspecialchars($_SESSION['username']) ?></p>
+                <p class="user-card-profile-p"><strong>Email:</strong> <?= htmlspecialchars($_SESSION['email']); ?></p>
+                <p class="user-card-profile-p"><strong>Password:</strong>*********</p>
+                <a href="settings.php?edit=profile_<?= htmlspecialchars($_SESSION['user_id']) ?>"><button>Edit</button></a>
+                <?php if (!empty($errors)) {
+                    echo '<div class="message-user-update">';
+                    foreach ($errors as $error) {
+                        echo htmlspecialchars($error) . '<br>';
+                    }
+                    echo '</div>';
+                } ?>
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 
