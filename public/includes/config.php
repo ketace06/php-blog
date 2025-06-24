@@ -17,7 +17,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $isLoggedIn = isset($_SESSION['user_id']) && isset($_SESSION['username']);
 
-$protectedPages = ['post-creation.php', 'post-edition.php', 'logout.php'];
+$protectedPages = ['post-creation.php', 'post-edition.php', 'logout.php', 'settings.php'];
 $currentPage = basename($_SERVER['PHP_SELF']);
 
 if (!$isLoggedIn && in_array($currentPage, $protectedPages)) {

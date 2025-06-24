@@ -48,6 +48,7 @@ p {
     font-size: 2rem;
     font-weight: bold;
     color: var(--link-color);
+    text-decoration: none;
 }
 
 nav {
@@ -189,6 +190,7 @@ a {
     color: var(--background-color);
     text-decoration: none;
     font-size: 0.9rem;
+    cursor: pointer;
 }
 
 p a {
@@ -387,11 +389,16 @@ img {
     margin-bottom: 100px;
 }
 
-.user-message {
-    color: var(--user-msg-color)
+.message-user-creation {
+    color: var(--user-msg-color);
 }
 
-.flash-message, .flash_errors {
+.message-user-update {
+    color: white;
+}
+
+.flash-message,
+.flash_errors {
     position: fixed;
     bottom: 10px;
     right: 10px;
@@ -418,12 +425,15 @@ img {
     0% {
         opacity: 0;
     }
+
     10% {
         opacity: 1;
     }
+
     90% {
         opacity: 1;
     }
+
     100% {
         opacity: 0;
     }
@@ -453,6 +463,157 @@ img {
     from {
         width: 100%;
     }
+
+    to {
+        width: 0%;
+    }
+}
+
+
+.message-user {
+    color: white;
+}
+
+.message-user a {
+    color: yellow;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.edit-content {
+    width: 90%;
+    height: 300px;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.5;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    resize: vertical;
+}
+
+.profile-settings-container aside {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    left: 100px;
+    align-items: start;
+
+}
+
+.profile-settings-container aside a {
+    padding: 0;
+    text-decoration: none;
+}
+
+.settings-page {
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-card-profile {
+    background-color: var(--secondary-color);
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    justify-content: space-between;
+    width: 35vw;
+}
+
+.user-card-profile p {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    color: white;
+}
+
+.username {
+    font-weight: bold;
+    color: var(--link-color);
+}
+
+.logout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.flash-message,
+.flash_errors {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 10;
+    opacity: 0;
+    animation: fadeInOut 6s forwards;
+    color: white;
+
+}
+
+.flash-message {
+    background-color: #4caf50;
+    font-weight: normal;
+}
+
+.flash_errors {
+    background-color: #e60d0d;
+    font-weight: bold;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.timer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #f3f3f3;
+}
+
+.timer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #4CAF50;
+    width: 100%;
+    animation: countdown 5s linear forwards;
+}
+
+@keyframes countdown {
+    from {
+        width: 100%;
+    }
+
     to {
         width: 0%;
     }
