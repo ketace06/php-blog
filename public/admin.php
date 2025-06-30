@@ -2,8 +2,8 @@
 session_start();
 include('includes/config.php');
 
-$title = trim($_POST['title'] ?? '');
-$content = trim($_POST['content'] ?? '');
+$title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $user_id = $_SESSION['user_id'];
 $img = "";
 $errors = [];
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 function renderPost($post)
 {
-    ?>
+?>
     <article class="blog-post">
         <a href="post-detail.php?id=<?= $post['id'] ?>">
             <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
@@ -201,28 +201,28 @@ function renderPost($post)
             </div>
             <?php
             $count = 0;
-$limit = 3;
-foreach ($posts as $index => $post) {
-    if ($count >= $limit) {
-        break;
-    }
+            $limit = 3;
+            foreach ($posts as $index => $post) {
+                if ($count >= $limit) {
+                    break;
+                }
 
-    if ($count % 3 == 0) {
-        echo '<div class="blog-posts-container">';
-    }
+                if ($count % 3 == 0) {
+                    echo '<div class="blog-posts-container">';
+                }
 
-    renderPost($post);
-    $count++;
+                renderPost($post);
+                $count++;
 
-    if ($count % 3 == 0 || $index == count($posts) - 1) {
-        echo '</div>';
-    }
-}
+                if ($count % 3 == 0 || $index == count($posts) - 1) {
+                    echo '</div>';
+                }
+            }
 
-if ($count === 0) {
-    echo '<p>There are no posts</p>';
-}
-?>
+            if ($count === 0) {
+                echo '<p>There are no posts</p>';
+            }
+            ?>
         </main>
     </div>
 </body>
