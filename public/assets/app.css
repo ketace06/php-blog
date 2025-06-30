@@ -245,8 +245,8 @@ a:hover {
 
 .blog-post {
     border-radius: 10px;
-    overflow: hidden;
-    width: 450px
+    width: 450px;
+    height: auto;
 }
 
 .blog-post img {
@@ -278,7 +278,6 @@ section {
     flex-direction: column;
     gap: 2rem;
     box-sizing: border-box;
-    overflow: hidden
 }
 
 .content {
