@@ -52,7 +52,7 @@ try {
 
         <section>
             <div class="blog-title-container">
-                <h1>Recent posts</h1>
+                <h1>Daily posts</h1>
             </div>
             <?php
             $count = 0;

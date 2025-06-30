@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 
 
                 session_regenerate_id(true);
-                header('Location: /index.php');
+                header('Location: /');
                 exit;
             } elseif ($user) {
                 $errorMessage = "Incorrect password. Please try again.";

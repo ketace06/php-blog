@@ -687,6 +687,7 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
@@ -719,4 +720,14 @@ img {
 
 .cool-div a {
     color: black;
+}
+
+.user-management {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    justify-content: space-between;
+    align-items: center;
 }

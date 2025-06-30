@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!isset($_FILES['img']) || $_FILES['img']['error'] !== UPLOAD_ERR_OK) {
-        $errors[] = "A cover image is required.";
+        $errors[] = "A cover image is required. 4 MB maximum upload.";
     } else {
         $imgTmpName = $_FILES['img']['tmp_name'];
         $imgOriginalName = $_FILES['img']['name'];
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$title, $img, $content, $user_id]);
 
             $_SESSION['flash_message'] = "Your blog has been successfully created.";
-            header('Location: /index.php');
+            header('Location: /');
             exit();
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();

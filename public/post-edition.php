@@ -4,36 +4,47 @@ include('includes/config.php');
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $postId = (int)$_GET['delete'];
 
-    if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $postId) {
-        try {
-            $stmt = $pdo->prepare("SELECT img FROM posts WHERE id = ?");
-            $stmt->execute([$postId]);
-            $post = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT id, user_id, img FROM posts WHERE id = ?");
+    $stmt->execute([$postId]);
+    $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($post && !empty($post['img'])) {
-                $imagePath = dirname(__DIR__) . '/public/uploads/' . $post['img'];
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+    if ($post) {
+        if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']) {
+            try {
+                if ($post['img']) {
+                    $imagePath = dirname(__DIR__) . '/public/uploads/' . $post['img'];
+                    if (file_exists($imagePath)) {
+                        if (!unlink($imagePath)) {
+                            $_SESSION['flash_errors'] = "Error deleting image.";
+                            header('Location: post-edition.php');
+                            exit();
+                        }
+                    }
                 }
+
+                $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
+                $stmt->execute([$postId]);
+
+                $_SESSION['flash_message'] = "Post successfully deleted.";
+                header('Location: post-edition.php');
+                exit();
+            } catch (PDOException $e) {
+                $_SESSION['flash_errors'] = "Error deleting post: " . $e->getMessage();
+                header('Location: post-edition.php');
+                exit();
             }
-
-            $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
-            $stmt->execute([$postId]);
-
-            $_SESSION['flash_message'] = "Post successfully deleted.";
-            header('Location: post-edition.php');
-            exit();
-        } catch (PDOException $e) {
-            $_SESSION['flash_errors'] = "Error deleting post: " . $e->getMessage();
+        } else {
+            $_SESSION['flash_errors'] = "You don't have permission to delete this post.";
             header('Location: post-edition.php');
             exit();
         }
     } else {
-        $_SESSION['flash_errors'] = "You don't have permission to delete this post.";
+        $_SESSION['flash_errors'] = "Post not found.";
         header('Location: post-edition.php');
         exit();
     }
 }
+
 
 
 $title = trim($_POST['title'] ?? '');
@@ -166,10 +177,12 @@ function renderPost($post)
             </form>
         <?php else: ?>
             <div class="actions-button-edit">
-                <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
+                <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
+
                 <?php if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']): ?>
                     <a href="post-edition.php?edit=<?= $post['id'] ?>"><button type="button">Edit</button></a>
-                    <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
+                    <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
+
                 <?php endif; ?>
             </div>
         <?php endif; ?>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 include('includes/config.php');
 
 $title = trim($_POST['title'] ?? '');
@@ -10,18 +11,39 @@ $errors = [];
 $isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
 $postId = $isEdit ? (int)$_GET['edit'] : null;
 
-$stmt = $pdo->prepare("SELECT users.username FROM users");
+$stmt = $pdo->prepare("SELECT id, username, role FROM users WHERE role != 'admin'");
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($_SESSION['role'] === 'admin') {
-    $stmt = $pdo->prepare("SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC");
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    $stmt = $pdo->prepare("SELECT posts.*, users.id as user_id, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC");
     $stmt->execute();
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
-    $stmt = $pdo->prepare("SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id WHERE posts.user_id = :user_id ORDER BY posts.created_at DESC");
-    $stmt->execute(['user_id' => $user_id]);
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    http_response_code(403);
+    exit;
+}
+
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $userIdToDelete = $_GET['delete'];
+
+    if ($_SESSION['role'] === 'admin') {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->execute([$userIdToDelete]);
+
+            $_SESSION['flash_message'] = "User has been deleted successfully.";
+            header("Location: admin.php");
+            exit();
+        } catch (PDOException $e) {
+            $_SESSION['flash_errors'] = "Error deleting user: " . $e->getMessage();
+            header("Location: admin.php");
+            exit();
+        }
+    } else {
+        http_response_code(403);
+        exit();
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -55,25 +77,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $img = uniqid('post_', true) . '.' . pathinfo($imgOriginalName, PATHINFO_EXTENSION);
             $uploadDir = dirname(__DIR__) . '/public/uploads/';
             if (!is_dir($uploadDir)) {
-                if (!mkdir($uploadDir, 0755, true)) {
-                    $errors[] = "Failed to create the uploads directory.";
-                }
+                mkdir($uploadDir, 0755, true);
             }
             $uploadPath = $uploadDir . $img;
-            if (!move_uploaded_file($imgTmpName, $uploadPath)) {
-                $errors[] = "Failed to upload the image.";
-            }
+            move_uploaded_file($imgTmpName, $uploadPath);
         }
     }
 
     if (empty($errors)) {
         try {
             if ($isEdit) {
+                $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
+                $stmt->execute([$postId]);
+                $existingPost = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $postId) {
-                    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
-                    $stmt->execute([$postId]);
-                    $existingPost = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$existingPost) {
+                    $errors[] = "Post not found.";
+                } elseif ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $existingPost['user_id']) {
                     if (empty($img)) {
                         $img = $existingPost['img'];
                     }
@@ -92,9 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $_SESSION['flash_message'] = "Your blog has been successfully updated.";
-            header('Location: /post-edition.php');
-            exit();
+            if (empty($errors)) {
+                $_SESSION['flash_message'] = "Your blog has been successfully updated.";
+                header('Location: /post-edition.php');
+                exit();
+            }
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();
         }
@@ -111,7 +133,6 @@ function renderPost($post)
             <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
             <h2><?= htmlspecialchars($post['title']) ?></h2>
             <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
-
         </a>
 
         <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['id']): ?>
@@ -144,7 +165,6 @@ function renderPost($post)
     </article>
 <?php
 }
-
 ?>
 
 <?php include('includes/head.php'); ?>
@@ -156,14 +176,28 @@ function renderPost($post)
             <h1>Admin's dashboard</h1>
             <div class="user-container">
                 <ul class="user-list">
-                    <?php foreach ($users as $user): ?>
-                        <li class="user-item"><?= htmlspecialchars($user['username']) ?></li>
-                    <?php endforeach; ?>
+                    <?php if (empty($users)): ?>
+                        <span>No users found.</span>
+                    <?php else: ?>
+                        <?php foreach ($users as $user): ?>
+                            <li class="user-item-container">
+                                <details>
+                                    <summary class="user-item"><?= htmlspecialchars($user['username']) ?></summary>
+                                    <div class="user-management">
+                                        <a href="admin.php?delete=<?= htmlspecialchars($user['id']) ?>">Delete</a>
+                                        <a href="settings.php?edit=1&profile=<?= $user['id'] ?>">Edit</a>
+                                        <a href="settings.php?profile=<?= htmlspecialchars($user['id']) ?>">View</a>
+                                    </div>
+                                </details>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+
                 </ul>
             </div>
             <div class="cool-div">
                 <h1>Recent Posts Management</h1>
-                <a href="post-edition.php">View and edit all posts ></a>
+                <a href="post-edition.php">View all ></a>
             </div>
             <?php
             $count = 0;
@@ -178,7 +212,6 @@ foreach ($posts as $index => $post) {
     }
 
     renderPost($post);
-
     $count++;
 
     if ($count % 3 == 0 || $index == count($posts) - 1) {

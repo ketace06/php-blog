@@ -15,7 +15,7 @@ include('includes/config.php');
                 <?php if ($_SESSION['role'] === 'admin') : ?>
                     <li><a href="admin.php">Admin Dashboard</a></li>
                 <?php endif; ?>
-                <li><a href="settings.php">Settings</a></li>
+                <li><a href="settings.php?profile=<?= $_SESSION['user_id'] ?>">Settings</a></li>
 
             <?php else: ?>
                 <li><a href="login-page.php">Log in</a></li>
@@ -24,4 +24,5 @@ include('includes/config.php');
         </ul>
     </div>
 </body>
+
 </html>
