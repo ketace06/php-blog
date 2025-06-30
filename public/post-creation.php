@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!isset($_FILES['img']) || $_FILES['img']['error'] !== UPLOAD_ERR_OK) {
-        $errors[] = "A cover image is required.";
+        $errors[] = "A cover image is required. 4 MB maximum upload.";
     } else {
         $imgTmpName = $_FILES['img']['tmp_name'];
         $imgOriginalName = $_FILES['img']['name'];
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$title, $img, $content, $user_id]);
 
             $_SESSION['flash_message'] = "Your blog has been successfully created.";
-            header('Location: /index.php');
+            header('Location: /');
             exit();
         } catch (PDOException $e) {
             $errors[] = "Database error: " . $e->getMessage();
@@ -71,8 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>
@@ -80,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="post-creation-page">
         <div>
-            <h1>Blog creation</h1>
+            <h1>Post creation</h1>
             <form class="form-container-creation" action="post-creation.php" method="POST" enctype="multipart/form-data">
                 <div>
                     <label for="title">Title</label>
@@ -98,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div>
-                    <button type="submit" name="post-blog">Create Post</button>
+                    <button type="submit" name="post-blog">Send the post</button>
                 </div>
             </form>
         </div>

@@ -18,12 +18,11 @@ $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$post) {
     http_response_code(404);
-    die();
+    echo "This post doesn't exist";
+    exit;
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>

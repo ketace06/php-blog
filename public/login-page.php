@@ -15,9 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+
 
                 session_regenerate_id(true);
-                header('Location: /index.php');
+                header('Location: /');
                 exit;
             } elseif ($user) {
                 $errorMessage = "Incorrect password. Please try again.";
@@ -32,8 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <?php include('includes/head.php'); ?>
 
 <body>
