@@ -1,8 +1,11 @@
 <?php
 include('includes/config.php');
 
-$title = trim($_POST['title']);
-$content = trim($_POST['content']);
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+
+$title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$category_name = filter_input(INPUT_POST, 'category', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $user_id = $_SESSION['user_id'];
 $img = "";
 $errors = [];
@@ -53,11 +56,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (empty($errors)) {
+    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
+    $stmt->execute([$category_name]);
+    $category = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    if (!empty($category_name)) {
+        $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
+        $stmt->execute([$category_name]);
+        $category = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($category) {
+            $category_id = $category['id'];
+        } else {
+            $errors[] = "The selected category does not exist.";
+        }
+    } else {
+
+        $category_id = null;
+    }
+
+    if (empty($errors)) {
         try {
-            $stmt = $pdo->prepare("INSERT INTO posts (title, img, content, user_id) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$title, $img, $content, $user_id]);
+            $stmt = $pdo->prepare("INSERT INTO posts (title, img, content, user_id, category_id) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$title, $img, $content, $user_id, $category_id]);
 
             $_SESSION['flash_message'] = "Your blog has been successfully created.";
             header('Location: /');
@@ -77,29 +98,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include('includes/navbar.php'); ?>
 
     <main class="post-creation-page">
-        <div>
+        <form class="form-container-creation" action="post-creation.php" method="POST" enctype="multipart/form-data">
             <h1>Post creation</h1>
-            <form class="form-container-creation" action="post-creation.php" method="POST" enctype="multipart/form-data">
-                <div>
-                    <label for="title">Title</label>
-                    <input type="text" id="title" name="title" required value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '' ?>">
-                </div>
+            <div>
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" required value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '' ?>">
+            </div>
+            <div>
+                <label for="category">Category</label>
+                <input list="categories" id="category" name="category" placeholder="Choose a category" value="<?= isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '' ?>">
+                <datalist id="categories">
+                    <?php
+                    $stmt = $pdo->query("SELECT name FROM categories");
+while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    echo '<option value="' . htmlspecialchars($category['name']) . '">';
+}
+?>
+                </datalist>
+            </div>
 
-                <div>
-                    <label for="img">Cover Image</label>
-                    <input type="file" id="img" name="img" accept="image/jpeg, image/png" required size="4000000">
-                </div>
 
-                <div>
-                    <label for="content">Content</label>
-                    <textarea id="content" name="content" class="content" required><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
-                </div>
 
-                <div>
-                    <button type="submit" name="post-blog">Send the post</button>
-                </div>
-            </form>
-        </div>
+            <div>
+                <label for="img">Cover Image</label>
+                <input type="file" id="img" name="img" accept="image/jpeg, image/png" required size="4000000">
+            </div>
+
+            <div>
+                <label for="content">Content</label>
+                <textarea id="content" name="content" class="content" required><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
+            </div>
+
+            <div>
+                <button type="submit" name="post-blog">Send the post</button>
+            </div>
+        </form>
     </main>
 </body>
 

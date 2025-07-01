@@ -12,7 +12,12 @@ try {
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
 
 
-$stmt = $pdo->prepare('SELECT * FROM posts WHERE id = :id');
+$stmt = $pdo->prepare('
+    SELECT posts.*, users.username 
+    FROM posts 
+    JOIN users ON posts.user_id = users.id 
+    WHERE posts.id = :id
+');
 $stmt->execute(['id' => $id]);
 $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -32,7 +37,7 @@ if (!$post) {
         <article>
             <div class="description-blog">
                 <h1><?= htmlspecialchars($post['title']) ?></h1>
-                <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) ?></p>
+                <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
                 <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
                 <p><?= htmlspecialchars($post['content']) ?></p>
             </div>

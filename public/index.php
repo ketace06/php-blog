@@ -6,83 +6,116 @@ if (!$isLoggedIn) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC");
+    $stmt = $pdo->prepare("SELECT posts.*, users.username, categories.name AS category_name FROM posts 
+                            JOIN users ON posts.user_id = users.id 
+                            LEFT JOIN categories ON posts.category_id = categories.id
+                            ORDER BY posts.created_at DESC");
     $stmt->execute();
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $categoriesStmt = $pdo->query("SELECT * FROM categories");
+    $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Error fetch: " . $e->getMessage());
+    die("Error fetching posts: " . $e->getMessage());
 }
+
 ?>
 
 <?php include('includes/head.php'); ?>
 
 <body>
     <?php include('includes/navbar.php'); ?>
+
     <main>
         <section>
-            <div class="blog-title-container">
-                <h1>In the spotlight</h1>
-            </div>
-            <div class="blog-post-spotlight">
-                <article class="blog-post-big-news">
-                    <a href="#">
-                        <img src="https://jvmag.ch/wp-content/uploads/2025/06/playstation-6-1024x576.jpg" alt="PlayStation 6">
-                        <h2>PlayStation 6 is officially a very big priority at Sony</h2>
-                        <p class="post-date">2025-06-10</p>
-                    </a>
-                </article>
-                <div class="second-blog-spotlight-container">
-                    <article class="blog-post">
-                        <a href="#">
-                            <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg?t=1683566799" alt="Counter-Strike 2">
-                            <h2>Counter-Strike 2: What's changed and what to expect</h2>
-                            <p class="post-date">2025-06-08</p>
-                        </a>
-                    </article>
-                    <article class="blog-post">
-                        <a href="#">
-                            <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1716740/capsule_616x353.jpg?t=1749757928" alt="Starfield Update">
-                            <h2>Starfield receives huge update: performance & mod support improved</h2>
-                            <p class="post-date">2025-06-05</p>
-                        </a>
-                    </article>
+            <?php if (!empty($categories)): ?>
+                <div class="blog-title-container">
+                    <h1>Categories</h1>
                 </div>
-            </div>
+
+                <?php foreach ($categories as $category): ?>
+                    <?php
+                    $stmtPosts = $pdo->prepare("SELECT * FROM posts
+                        JOIN users ON posts.user_id = users.id 
+                        WHERE category_id = ? 
+                        ORDER BY created_at DESC LIMIT 3");
+                    $stmtPosts->execute([$category['id']]);
+                    $postsInCategory = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
+
+                    if (empty($postsInCategory)) {
+                        continue;
+                    }
+                    ?>
+
+                    <div class="category-container">
+                        <div class="cool-div">
+                            <h2><?= htmlspecialchars($category['name']) ?></h2>
+                            <a href="post-edition.php">View all ></a>
+                        </div>
+                        <div class="blog-posts-container">
+                            <?php foreach ($postsInCategory as $post): ?>
+                                <article class="blog-post">
+                                    <a href="post-detail.php?id=<?= $post['id'] ?>">
+                                        <img src="/uploads/<?= htmlspecialchars($post['img']) ?>" alt="<?= htmlspecialchars($post['title']) ?>">
+                                        <h2><?= htmlspecialchars($post['title']) ?></h2>
+                                        <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
+                                    </a>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="no-categories-message">There are no categories available at the moment. Categories are managed by the site admins.</p>
+            <?php endif; ?>
         </section>
 
         <section>
             <div class="blog-title-container">
-                <h1>Daily posts</h1>
+                <h1>Daily Posts</h1>
             </div>
-            <?php
-            $count = 0;
-foreach ($posts as $index => $post) {
-    if ($count % 3 == 0) {
-        echo '<div class="blog-posts-container">';
-    }
-    ?>
-                <article class="blog-post">
-                    <a href="post-detail.php?id=<?= $post['id'] ?>">
-                        <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
-                        <h2><?= htmlspecialchars($post['title']) ?></h2>
-                        <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
+            <div class="blog-posts-container">
+                <?php if (empty($posts)): ?>
+                    <div class="no-post-div">
+                        <p>There are no posts for today...</p>
+                        <p>Enjoy!</p>
+                    </div>
+                <?php else: ?>
+                    <?php
+                    $count = 0;
+                    foreach ($posts as $index => $post):
+                        if ($count % 3 == 0 && $count > 0) {
+                            echo '</div><div class="blog-posts-container">';
+                        }
+                    ?>
+                        <article class="blog-post">
+                            <?php if (!empty($post['category_name'])): ?>
+                                <p class="post-category">From <?= htmlspecialchars($post['category_name']) ?> category</p>
+                            <?php endif; ?>
+                            <a href="post-detail.php?id=<?= $post['id'] ?>">
+                                <img src="/uploads/<?= htmlspecialchars($post['img']) ?>" alt="<?= htmlspecialchars($post['title']) ?>">
+                                <h2><?= htmlspecialchars($post['title']) ?></h2>
+                                <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
+                            </a>
+                        </article>
 
-                    </a>
-                </article>
-            <?php
-        $count++;
-    if ($count % 3 == 0 || $index == count($posts) - 1) {
-        echo '</div>';
-    }
-}
-?>
+                    <?php
+                        $count++;
+                    endforeach;
+                    if ($count % 3 != 0) {
+                        echo '</div>';
+                    }
+                    ?>
+                <?php endif; ?>
+            </div>
         </section>
+
+        <footer>
+            <div class="footer-container">
+                <p>Made with <span style="color: #e25555;">&#10084;</span> by ketace06</p>
+            </div>
+        </footer>
     </main>
-    <footer>
-        <div class="footer-container">
-            <p>Made with <span style="color: #e25555;">&#10084;</span> by ketace06</p>
-        </div>
-    </footer>
 </body>
 
 </html>
