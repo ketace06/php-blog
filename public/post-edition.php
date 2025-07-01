@@ -5,10 +5,7 @@ $category_name = filter_input(INPUT_POST, 'category', FILTER_SANITIZE_FULL_SPECI
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $postId = (int)$_GET['delete'];
-    $stmt = $pdo->query("SELECT name FROM categories");
-    while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        echo '<option value="' . htmlspecialchars($category['name']) . '">';
-    }
+
     $stmt = $pdo->prepare("SELECT id, user_id, img FROM posts WHERE id = ?");
     $stmt->execute([$postId]);
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -37,8 +34,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                 exit();
             }
         } else {
-            $_SESSION['flash_errors'] = "You don't have permission to delete this post.";
-            header('Location: post-edition.php');
+            http_response_code(403);
             exit();
         }
     } else {
@@ -53,6 +49,20 @@ $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHAR
 $user_id = $_SESSION['user_id'];
 $img = "";
 $errors = [];
+
+if (!empty($category_name)) {
+    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
+    $stmt->execute([$category_name]);
+    $category = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($category) {
+        $category_id = $category['id'];
+    } else {
+        $errors[] = "The selected category does not exist.";
+    }
+} else {
+    $category_id = null;
+}
 
 $isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
 $postId = $isEdit ? (int)$_GET['edit'] : null;
@@ -95,52 +105,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($imgSize > 4 * 1024 * 1024) {
             $errors[] = "The image must be smaller than 4MB.";
         }
+    }
 
-        if (empty($errors)) {
+    if (empty($errors)) {
+        if (!empty($_FILES['img']['tmp_name'])) {
             $img = uniqid('post_', true) . '.' . pathinfo($imgOriginalName, PATHINFO_EXTENSION);
             $uploadDir = dirname(__DIR__) . '/public/uploads/';
-            if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true)) {
-                $errors[] = "Failed to create the uploads directory.";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
             }
             $uploadPath = $uploadDir . $img;
             if (!move_uploaded_file($imgTmpName, $uploadPath)) {
                 $errors[] = "Failed to upload the image.";
             }
         }
-    }
 
-    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
-    $stmt->execute([$category_name]);
-    $category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!empty($category_name)) {
-        $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
-        $stmt->execute([$category_name]);
-        $category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($category) {
-            $category_id = $category['id'];
-        } else {
-            $errors[] = "The selected category does not exist.";
-        }
-    } else {
-
-        $category_id = null;
-    }
-
-    if (empty($errors)) {
         try {
             if ($isEdit) {
-                if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $postId) {
-                    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
-                    $stmt->execute([$postId]);
-                    $existingPost = $stmt->fetch(PDO::FETCH_ASSOC);
-                    $img = empty($img) ? $existingPost['img'] : $img;
+                $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
+                $stmt->execute([$postId]);
+                $existingPost = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    $stmt = $pdo->prepare("UPDATE posts SET title = ?, img = ?, content = ? WHERE id = ?");
-                    $stmt->execute([$title, $img, $content, $postId]);
+                if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $existingPost['user_id']) {
+                    $img = empty($img) ? $existingPost['img'] : $img;
+                    $stmt = $pdo->prepare("UPDATE posts SET title = ?, img = ?, content = ?, user_id = ?, category_id = ? WHERE id = ?");
+                    $stmt->execute([$title, $img, $content, $user_id, $category_id, $postId]);
                 } else {
-                    $errors[] = "You don't have permission to edit this post.";
+                    http_response_code(403);
+                    exit();
                 }
             } else {
                 if (empty($img)) {
@@ -161,54 +153,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['flash_errors'] = implode('<br>', $errors);
     }
 }
-
-function renderPost($post)
-{
-    ?>
-    <article class="blog-post">
-        <a href="post-detail.php?id=<?= $post['id'] ?>">
-            <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
-            <h2><?= htmlspecialchars($post['title']) ?></h2>
-            <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
-        </a>
-        <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['id']): ?>
-            <a href="post-edition.php"><button type="button">Cancel changes</button></a>
-            <form method="POST" enctype="multipart/form-data" action="post-edition.php?edit=<?= $post['id'] ?>">
-                <div>
-                    <label for="title<?= $post['id'] ?>">Title:</label>
-                    <input type="text" id="title<?= $post['id'] ?>" name="title" value="<?= htmlspecialchars($post['title']) ?>">
-                </div>
-            <div>
-                <label for="category">Category</label>
-                <input list="categories" id="category" name="category" placeholder="Choose a category" value="<?= isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '' ?>">
-                <datalist id="categories">
-                </datalist>
-            </div>
-                <div>
-                    <label for="img<?= $post['id'] ?>">Cover image:</label>
-                    <input type="file" id="img<?= $post['id'] ?>" name="img">
-                    <small>Current image: <?= htmlspecialchars($post['img']) ?></small>
-                </div>
-                <div>
-                    <label for="content<?= $post['id'] ?>">Content:</label>
-                    <textarea id="content<?= $post['id'] ?>" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
-                </div>
-                <button type="submit">Save Changes</button>
-            </form>
-
-        <?php else: ?>
-            <div class="actions-button-edit">
-                <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
-                <?php if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']): ?>
-                    <a href="post-edition.php?edit=<?= $post['id'] ?>"><button type="button">Edit</button></a>
-                    <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-    </article>
-<?php
-}
-
 ?>
 
 <?php include('includes/head.php'); ?>
@@ -224,8 +168,55 @@ foreach ($posts as $index => $post) {
     if ($count % 3 == 0) {
         echo '<div class="blog-posts-container">';
     }
-    renderPost($post);
-    $count++;
+    ?>
+                <article class="blog-post">
+                    <a href="post-detail.php?id=<?= $post['id'] ?>">
+                        <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
+                        <h2><?= htmlspecialchars($post['title']) ?></h2>
+                        <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
+                    </a>
+                    <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['id']): ?>
+                        <a href="post-edition.php"><button type="button">Cancel changes</button></a>
+                        <form method="POST" enctype="multipart/form-data" action="post-edition.php?edit=<?= $post['id'] ?>">
+                            <div>
+                                <label for="title<?= $post['id'] ?>">Title:</label>
+                                <input type="text" id="title<?= $post['id'] ?>" name="title" value="<?= htmlspecialchars($post['title']) ?>">
+                            </div>
+                            <div>
+                                <label for="category">Category</label>
+                                <input list="categories" id="category" name="category" placeholder="Choose a category" value="<?= isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '' ?>">
+                                <datalist id="categories">
+                                    <?php
+                            $stmt = $pdo->query("SELECT name FROM categories");
+                        while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                            echo '<option value="' . htmlspecialchars($category['name']) . '">';
+                        }
+                        ?>
+                                </datalist>
+                            </div>
+                            <div>
+                                <label for="img<?= $post['id'] ?>">Cover image:</label>
+                                <input type="file" id="img<?= $post['id'] ?>" name="img">
+                                <small>Current image: <?= htmlspecialchars($post['img']) ?></small>
+                            </div>
+                            <div>
+                                <label for="content<?= $post['id'] ?>">Content:</label>
+                                <textarea id="content<?= $post['id'] ?>" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
+                            </div>
+                            <button type="submit">Save Changes</button>
+                        </form>
+                    <?php else: ?>
+                        <div class="actions-button-edit">
+                            <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
+                            <?php if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']): ?>
+                                <a href="post-edition.php?edit=<?= $post['id'] ?>"><button type="button">Edit</button></a>
+                                <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                </article>
+            <?php
+                $count++;
     if ($count % 3 == 0 || $index == count($posts) - 1) {
         echo '</div>';
     }

@@ -167,54 +167,54 @@ foreach ($posts as $index => $post) {
 if ($count === 0) {
     echo '<p>There are no posts</p>';
 }
-?>
+?><main>
 
-            <div class="category-management">
-                <form method="POST" action="admin.php">
-                    <h1>Add category</h1>
-                    <input type="text" name="category_name" placeholder="Enter new category name" required>
-                    <button type="submit" name="create_category">Create Category</button>
-                </form>
-                <ul>
-                    <?php if (empty($categories)): ?>
-                        <span>No categories found.</span>
-                    <?php else: ?>
-                        <?php foreach ($categories as $category): ?>
-                            <li class="category-item-container">
-                                <span><?= htmlspecialchars($category['name']) ?></span>
-                                <a href="admin.php?delete_category=<?= $category['id'] ?>">Delete</a>
-                            </li>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </ul>
-            </div>
+                <div class="category-management">
+                    <form method="POST" action="admin.php">
+                        <h1>Add category</h1>
+                        <input type="text" name="category_name" placeholder="Enter new category name" required>
+                        <button type="submit" name="create_category">Create Category</button>
+                    </form>
+                    <ul>
+                        <?php if (empty($categories)): ?>
+                            <span>No categories found.</span>
+                        <?php else: ?>
+                            <?php foreach ($categories as $category): ?>
+                                <li class="category-item-container">
+                                    <span><?= htmlspecialchars($category['name']) ?></span>
+                                    <a href="admin.php?delete_category=<?= $category['id'] ?>">Delete</a>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </div>
 
-            <h1>Users management</h1>
+                <h1>Users management</h1>
 
-            <div class="user-container">
+                <div class="user-container">
 
-                <ul class="user-list">
-                    <?php if (empty($users)): ?>
-                        <span>No users found.</span>
-                    <?php else: ?>
-                        <?php foreach ($users as $user): ?>
-                            <li class="user-item-container">
-                                <details>
-                                    <summary class="user-item"><?= htmlspecialchars($user['username']) ?></summary>
-                                    <div class="user-management">
-                                        <a href="admin.php?delete_user=<?= htmlspecialchars($user['id']) ?>">Delete</a>
-                                        <a href="settings.php?edit=1&profile=<?= $user['id'] ?>">Edit</a>
-                                        <a href="settings.php?profile=<?= htmlspecialchars($user['id']) ?>">View</a>
-                                    </div>
-                                </details>
-                            </li>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </ul>
-            </div>
+                    <ul class="user-list">
+                        <?php if (empty($users)): ?>
+                            <span>No users found.</span>
+                        <?php else: ?>
+                            <?php foreach ($users as $user): ?>
+                                <li class="user-item-container">
+                                    <details>
+                                        <summary class="user-item"><?= htmlspecialchars($user['username']) ?></summary>
+                                        <div class="user-management">
+                                            <a href="admin.php?delete_user=<?= htmlspecialchars($user['id']) ?>">Delete</a>
+                                            <a href="settings.php?edit=1&profile=<?= $user['id'] ?>">Edit</a>
+                                            <a href="settings.php?profile=<?= htmlspecialchars($user['id']) ?>">View</a>
+                                        </div>
+                                    </details>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </div>
 
 
-        </main>
+            </main>
     </div>
 </body>
 
