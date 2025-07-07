@@ -33,7 +33,7 @@ if (!$post) {
 <body>
     <?php include('includes/navbar.php'); ?>
 
-    <main class="blog-description-page">
+    <main>
         <article>
             <div class="description-blog">
                 <h1><?= htmlspecialchars($post['title']) ?></h1>

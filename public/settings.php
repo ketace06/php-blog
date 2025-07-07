@@ -98,20 +98,7 @@ if (isset($_POST['update_account']) && ($is_owner || $is_admin)) {
 
 <body class="settings-page">
     <?php include('includes/navbar.php'); ?>
-    <div class="profile-settings-container">
-        <aside>
-            <h2>Settings</h2>
-            <a href="">
-                <h3>👤 Profile</h3>
-            </a>
-            <a href="">
-                <h3>🔔 Notifications</h3>
-            </a>
-            <a href="/logout.php">
-                <h3>↩ Log out</h3>
-            </a>
-        </aside>
-    </div>
+
     <div class="profile-settings-container">
         <?php if ($edit_mode): ?>
             <h1>Profile edition of <span class="username"><?= htmlspecialchars($profile_user['username']); ?></span></h1>
@@ -145,6 +132,11 @@ if (isset($_POST['update_account']) && ($is_owner || $is_admin)) {
                 } ?>
             </div>
         <?php endif; ?>
+        <div>
+            <a href="/logout.php">
+                <h3>↩ Log out</h3>
+            </a>
+        </div>
     </div>
 </body>
 
