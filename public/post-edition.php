@@ -68,8 +68,17 @@ $isEdit = isset($_GET['edit']) && is_numeric($_GET['edit']);
 $postId = $isEdit ? (int)$_GET['edit'] : null;
 
 $query = ($_SESSION['role'] === 'admin')
-    ? "SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.created_at DESC"
-    : "SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id WHERE posts.user_id = :user_id ORDER BY posts.created_at DESC";
+    ? "SELECT posts.*, users.username, categories.name AS category_name 
+       FROM posts 
+       JOIN users ON posts.user_id = users.id 
+       LEFT JOIN categories ON posts.category_id = categories.id 
+       ORDER BY posts.created_at DESC"
+    : "SELECT posts.*, users.username, categories.name AS category_name 
+       FROM posts 
+       JOIN users ON posts.user_id = users.id 
+       LEFT JOIN categories ON posts.category_id = categories.id 
+       WHERE posts.user_id = :user_id 
+       ORDER BY posts.created_at DESC";
 
 $stmt = $pdo->prepare($query);
 if ($_SESSION['role'] !== 'admin') {
@@ -159,74 +168,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <?php include('includes/navbar.php'); ?>
-    <div class="recently-published-card">
-        <main class="blog-description-page">
-            <h1>Recent posts</h1>
-            <?php
-            $count = 0;
+    <main>
+        <h1>Recent posts</h1>
+        <?php
+        $count = 0;
+
 foreach ($posts as $index => $post) {
+    if ($isEdit && $post['id'] != $postId) {
+        continue;
+    }
+
     if ($count % 3 == 0) {
         echo '<div class="blog-posts-container">';
     }
     ?>
-                <article class="blog-post">
-                    <a href="post-detail.php?id=<?= $post['id'] ?>">
-                        <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
-                        <h2><?= htmlspecialchars($post['title']) ?></h2>
-                        <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
-                    </a>
-                    <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['id']): ?>
-                        <a href="post-edition.php"><button type="button">Cancel changes</button></a>
-                        <form method="POST" enctype="multipart/form-data" action="post-edition.php?edit=<?= $post['id'] ?>">
-                            <div>
-                                <label for="title<?= $post['id'] ?>">Title:</label>
-                                <input type="text" id="title<?= $post['id'] ?>" name="title" value="<?= htmlspecialchars($post['title']) ?>">
-                            </div>
-                            <div>
-                                <label for="category">Category</label>
-                                <input list="categories" id="category" name="category" placeholder="Choose a category" value="<?= isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '' ?>">
-                                <datalist id="categories">
-                                    <?php
-                            $stmt = $pdo->query("SELECT name FROM categories");
-                        while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                            echo '<option value="' . htmlspecialchars($category['name']) . '">';
-                        }
-                        ?>
-                                </datalist>
-                            </div>
-                            <div>
-                                <label for="img<?= $post['id'] ?>">Cover image:</label>
-                                <input type="file" id="img<?= $post['id'] ?>" name="img">
-                                <small>Current image: <?= htmlspecialchars($post['img']) ?></small>
-                            </div>
-                            <div>
-                                <label for="content<?= $post['id'] ?>">Content:</label>
-                                <textarea id="content<?= $post['id'] ?>" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
-                            </div>
-                            <button type="submit">Save Changes</button>
-                        </form>
-                    <?php else: ?>
-                        <div class="actions-button-edit">
-                            <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
-                            <?php if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']): ?>
-                                <a href="post-edition.php?edit=<?= $post['id'] ?>"><button type="button">Edit</button></a>
-                                <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
-                            <?php endif; ?>
+            <article class="blog-post">
+                <?php if (!empty($post['category_name'])): ?>
+                    <p class="post-category">From <?= htmlspecialchars($post['category_name']) ?> category</p>
+                <?php endif; ?>
+                <a href="post-detail.php?id=<?= $post['id'] ?>">
+                    <img src="/uploads/<?= htmlspecialchars($post['img']) ?>">
+                    <h2><?= htmlspecialchars($post['title']) ?></h2>
+                    <p class="post-date"><?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) . ' · Posted by ' . htmlspecialchars($post['username']) ?></p>
+                </a>
+
+                <?php if ($isEdit && $post['id'] == $postId): ?>
+                    <a href="post-edition.php"><button type="button">Cancel changes</button></a>
+                    <form method="POST" enctype="multipart/form-data" action="post-edition.php?edit=<?= $post['id'] ?>">
+                        <div>
+                            <label for="title<?= $post['id'] ?>">Title:</label>
+                            <input type="text" id="title<?= $post['id'] ?>" name="title" value="<?= htmlspecialchars($post['title']) ?>">
                         </div>
-                    <?php endif; ?>
-                </article>
-            <?php
-                $count++;
+                        <div>
+                            <label for="category">Category</label>
+                            <input list="categories" id="category" name="category" placeholder="Choose a category" value="<?= isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '' ?>">
+                            <?php if (!empty($post['category_name'])): ?>
+                                <span>This post was in <?= htmlspecialchars($post['category_name']) ?> category</span>
+                            <?php endif; ?>
+
+                            <datalist id="categories">
+                                <?php
+                            $stmt = $pdo->query("SELECT name FROM categories");
+                    while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo '<option value="' . htmlspecialchars($category['name']) . '">';
+                    }
+                    ?>
+                            </datalist>
+                        </div>
+                        <div>
+                            <label for="img<?= $post['id'] ?>">Cover image:</label>
+                            <input type="file" id="img<?= $post['id'] ?>" name="img">
+                            <small>Current image: <?= htmlspecialchars($post['img']) ?></small>
+                        </div>
+                        <div>
+                            <label for="content<?= $post['id'] ?>">Content:</label>
+                            <textarea id="content<?= $post['id'] ?>" name="content" class="content"><?= htmlspecialchars($post['content']) ?></textarea>
+                        </div>
+                        <button type="submit">Save Changes</button>
+                    </form>
+                <?php else: ?>
+                    <div class="actions-button-edit">
+                        <a href="post-edition.php?delete=<?= $post['id'] ?>"><button type="button">Delete</button></a>
+                        <?php if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] === $post['user_id']): ?>
+                            <a href="post-edition.php?edit=<?= $post['id'] ?>"><button type="button">Edit</button></a>
+                            <a href="post-detail.php?id=<?= $post['id'] ?>"><button type="button">View</button></a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            </article>
+        <?php
+            $count++;
     if ($count % 3 == 0 || $index == count($posts) - 1) {
         echo '</div>';
     }
 }
+
 if (count($posts) === 0) {
     echo '<p>There are no posts</p>';
 }
 ?>
-        </main>
-    </div>
+    </main>
+
 </body>
 
 </html>

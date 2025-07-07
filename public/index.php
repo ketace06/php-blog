@@ -6,19 +6,28 @@ if (!$isLoggedIn) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT posts.*, users.username, categories.name AS category_name FROM posts 
-                            JOIN users ON posts.user_id = users.id 
-                            LEFT JOIN categories ON posts.category_id = categories.id
-                            ORDER BY posts.created_at DESC");
+    $stmt = $pdo->prepare("
+        SELECT posts.*, users.username, categories.name AS category_name 
+        FROM posts 
+        JOIN users ON posts.user_id = users.id 
+        LEFT JOIN categories ON posts.category_id = categories.id
+        ORDER BY posts.created_at DESC
+    ");
     $stmt->execute();
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $categoriesStmt = $pdo->query("SELECT * FROM categories");
     $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $postsByCategory = [];
+    foreach ($posts as $post) {
+        if ($post['category_id']) {
+            $postsByCategory[$post['category_id']][] = $post;
+        }
+    }
 } catch (PDOException $e) {
     die("Error fetching posts: " . $e->getMessage());
 }
-
 ?>
 
 <?php include('includes/head.php'); ?>
@@ -35,22 +44,17 @@ try {
 
                 <?php foreach ($categories as $category): ?>
                     <?php
-                    $stmtPosts = $pdo->prepare("SELECT * FROM posts
-                        JOIN users ON posts.user_id = users.id 
-                        WHERE category_id = ? 
-                        ORDER BY created_at DESC LIMIT 3");
-                    $stmtPosts->execute([$category['id']]);
-                    $postsInCategory = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
-
+                    $postsInCategory = $postsByCategory[$category['id']] ?? [];
                     if (empty($postsInCategory)) {
                         continue;
                     }
+                    $postsInCategory = array_slice($postsInCategory, 0, 3);
                     ?>
 
                     <div class="category-container">
                         <div class="cool-div">
                             <h2><?= htmlspecialchars($category['name']) ?></h2>
-                            <a href="post-edition.php">View all ></a>
+                            <a href="category-posts.php?category_id=<?= $category['id'] ?>">View all ></a>
                         </div>
                         <div class="blog-posts-container">
                             <?php foreach ($postsInCategory as $post): ?>
@@ -87,7 +91,7 @@ try {
                         if ($count % 3 == 0 && $count > 0) {
                             echo '</div><div class="blog-posts-container">';
                         }
-                    ?>
+                        ?>
                         <article class="blog-post">
                             <?php if (!empty($post['category_name'])): ?>
                                 <p class="post-category">From <?= htmlspecialchars($post['category_name']) ?> category</p>
@@ -100,12 +104,12 @@ try {
                         </article>
 
                     <?php
-                        $count++;
+                            $count++;
                     endforeach;
-                    if ($count % 3 != 0) {
-                        echo '</div>';
-                    }
-                    ?>
+if ($count % 3 != 0) {
+    echo '</div>';
+}
+?>
                 <?php endif; ?>
             </div>
         </section>

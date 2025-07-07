@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php include('includes/navbar.php'); ?>
 
-    <main class="post-creation-page">
+    <main>
         <form class="form-container-creation" action="post-creation.php" method="POST" enctype="multipart/form-data">
             <h1>Post creation</h1>
             <div>
@@ -115,23 +115,22 @@ while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 ?>
                 </datalist>
-            </div>
 
 
 
-            <div>
-                <label for="img">Cover Image</label>
-                <input type="file" id="img" name="img" accept="image/jpeg, image/png" required size="4000000">
-            </div>
+                <div>
+                    <label for="img">Cover Image</label>
+                    <input type="file" id="img" name="img" accept="image/jpeg, image/png" required size="4000000">
+                </div>
 
-            <div>
-                <label for="content">Content</label>
-                <textarea id="content" name="content" class="content" required><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
-            </div>
+                <div>
+                    <label for="content">Content</label>
+                    <textarea id="content" name="content" class="content" required><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
+                </div>
 
-            <div>
-                <button type="submit" name="post-blog">Send the post</button>
-            </div>
+                <div>
+                    <button type="submit" name="post-blog">Send the post</button>
+                </div>
         </form>
     </main>
 </body>
